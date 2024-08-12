@@ -1,13 +1,12 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 	"os"
 	"os/user"
 	"runtime"
 
-	"github.com/cilium/ebpf/features"
+	"github.com/xulimeng/go-switch/features"
 )
 
 type Env string
@@ -81,9 +80,12 @@ func main() {
 	fmt.Println("SystemEnv: ", SystemEnv)
 
 	var cmd string
-	flag.StringVar(&cmd, "cmd", "", "Command to execute")
+	args := os.Args
+	if len(args) > 2 {
+		cmd = args[1]
+	}
 
-	flag.Parse()
+	fmt.Println("-----------Command: ", cmd)
 
 	switch cmd {
 	case "help", "":
