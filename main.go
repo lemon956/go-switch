@@ -16,17 +16,20 @@ const (
 	Linux   Env = "linux"
 	Windows Env = "windows"
 	Mac     Env = "mac"
-	// go-switch 的文件夹名
-	GoSwitchDir = ".go-switch"
 	// 不同系统默认的 go 安装路径
 	LinuxGoPath   = "$HOME/"
 	WindowsGoPath = `C:\\Users\\`
 	MacGoPath     = "$HOME/"
+	// go-switch 的文件夹名
+	GoSwitchDir = ".go-switch"
+	// 真正保存go 版本的文件夹名
+	SaveGoDir = "gos"
 )
 
 var (
 	SystemEnv Env
 	RootPath  string
+	GosPath   string
 )
 
 func PrintHelp() {
@@ -52,6 +55,7 @@ func init() {
 	case "linux":
 		SystemEnv = Linux
 		RootPath = LinuxGoPath + GoSwitchDir
+		GosPath = RootPath + "/" + SaveGoDir
 	case "windows":
 		SystemEnv = Windows
 		userNameCurr, err := user.Current()
@@ -59,20 +63,25 @@ func init() {
 			panic(err)
 		}
 		RootPath = WindowsGoPath + userNameCurr.Username + "\\" + GoSwitchDir
+		GosPath = RootPath + "\\" + SaveGoDir
 	case "darwin":
 		SystemEnv = Mac
 		RootPath = MacGoPath + GoSwitchDir
+		GosPath = RootPath + "/" + SaveGoDir
 	}
 }
 
 // ExistsPath check if path exists
-// Returns: bool, bool (exists, isDir)
+// Returns: bool, bool (exists, crate)
 func ExistsPath(path string) (bool, bool) {
-	info, err := os.Stat(path)
+	_, err := os.Stat(path)
 	if os.IsNotExist(err) {
-		return false, false
+		if err := os.MkdirAll(path, os.ModePerm); err != nil {
+			return false, false
+		}
+		return false, true
 	}
-	return err == nil, info.IsDir()
+	return err == nil, false
 }
 
 func main() {
@@ -81,7 +90,7 @@ func main() {
 
 	var cmd string
 	args := os.Args
-	if len(args) > 2 {
+	if len(args) >= 2 {
 		cmd = args[1]
 	}
 
@@ -92,6 +101,10 @@ func main() {
 		PrintHelp()
 	case "listall":
 		features.ListAll()
+	case "install":
+		features.Install()
+	default:
+		fmt.Println("Command not found")
 	}
 
 }

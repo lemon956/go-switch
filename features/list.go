@@ -5,16 +5,12 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+
+	"github.com/xulimeng/go-switch/models"
 )
 
-const goVersionsURL = "https://golang.org/dl/?mode=json&include=all"
-
-type GoVersion struct {
-	Version string `json:"version"`
-}
-
 func ListAll() {
-	resp, err := http.Get(goVersionsURL)
+	resp, err := http.Get(models.GoVersionsURL)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error fetching Go versions: %v\n", err)
 		os.Exit(1)
@@ -26,13 +22,12 @@ func ListAll() {
 		os.Exit(1)
 	}
 
-	var versions []GoVersion
+	var versions []models.GoVersion
 	if err := json.NewDecoder(resp.Body).Decode(&versions); err != nil {
 		fmt.Fprintf(os.Stderr, "Error decoding JSON: %v\n", err)
 		os.Exit(1)
 	}
-
-	for _, version := range versions {
-		fmt.Println(version.Version)
+	for i := len(versions) - 1; i >= 0; i-- {
+		fmt.Println(versions[i].Version)
 	}
 }
