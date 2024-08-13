@@ -61,7 +61,10 @@ func Install(searchVer string, system string, arch string, savePath string, unzi
 					if config.SystemEnv == config.Windows {
 						afterRenamePath = config.GosPath + "\\" + version.Version
 					}
-					config.Conf.LocalGos = append(config.Conf.LocalGos, afterRenamePath)
+					config.Conf.LocalGos = append(config.Conf.LocalGos, config.GosVersion{
+						Version: version.Version,
+						Path:    afterRenamePath,
+					})
 				}
 			}
 		}

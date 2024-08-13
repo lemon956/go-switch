@@ -5,26 +5,11 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
-	"os/user"
-	"runtime"
 
 	"github.com/BurntSushi/toml"
 	"github.com/xulimeng/go-switch/config"
 	"github.com/xulimeng/go-switch/features"
 	"github.com/xulimeng/go-switch/utils"
-)
-
-var (
-	// 不同系统默认的 go 安装路径
-	LinuxGoPath   = fmt.Sprintf("%s/", os.Getenv("HOME"))
-	WindowsGoPath = `C:\\Users\\`
-	MacGoPath     = fmt.Sprintf("%s/", os.Getenv("HOME"))
-
-	SystemEnv     config.Env
-	SystemArch    string
-	RootPath      string
-	GosPath       string
-	TempUnzipPath string
 )
 
 func PrintHelp() {
@@ -45,34 +30,15 @@ Command:
 }
 
 func init() {
-	os := runtime.GOOS
-	switch os {
-	case "linux":
-		SystemEnv = config.Linux
-		RootPath = LinuxGoPath + config.GoSwitchDir
-		GosPath = RootPath + "/" + config.SaveGoDir
-		TempUnzipPath = GosPath + "/" + config.UnzipGoDir
-	case "windows":
-		SystemEnv = config.Windows
-		userNameCurr, err := user.Current()
-		if err != nil {
-			panic(err)
-		}
-		RootPath = WindowsGoPath + userNameCurr.Username + "\\" + config.GoSwitchDir
-		GosPath = RootPath + "\\" + config.SaveGoDir
-		TempUnzipPath = GosPath + "\\" + config.UnzipGoDir
-	case "darwin":
-		SystemEnv = config.Mac
-		RootPath = MacGoPath + config.GoSwitchDir
-		GosPath = RootPath + "/" + config.SaveGoDir
-		TempUnzipPath = GosPath + "/" + config.UnzipGoDir
-	}
-	SystemArch = runtime.GOARCH
+	config.InitSystemVars()
+	config.InitConfigFile()
+	config.LoadConfig()
+	fmt.Println("init is over!!!")
 }
 
 func main() {
 
-	fmt.Println("SystemEnv: ", SystemEnv)
+	fmt.Println("SystemEnv: ", config.SystemEnv)
 
 	var cmd string
 	args := os.Args
@@ -80,7 +46,7 @@ func main() {
 		cmd = args[1]
 	}
 
-	if exists, create := utils.ExistsPath(RootPath); !exists && !create {
+	if exists, create := utils.ExistsPath(config.RootPath); !exists && !create {
 		panic("RootPath not exists")
 	}
 
@@ -98,11 +64,13 @@ func main() {
 		if len(args) >= 3 {
 			searchVer = args[2]
 		}
-		if exists, create := utils.ExistsPath(GosPath); (exists || create) && searchVer != "" {
-			features.Install(searchVer, string(SystemEnv), SystemArch, GosPath, TempUnzipPath)
+		if exists, create := utils.ExistsPath(config.GosPath); (exists || create) && searchVer != "" {
+			features.Install(searchVer, string(config.SystemEnv), config.SystemArch, config.GosPath, config.TempUnzipPath)
 		} else {
 			panic("Please input the version you want to install")
 		}
+	case "switch":
+		features.Switch()
 	default:
 		fmt.Println("Command not found")
 	}
@@ -113,7 +81,7 @@ func main() {
 	if err := encoder.Encode(config.Conf); err != nil {
 		panic(err)
 	}
-	if err := ioutil.WriteFile(RootPath+"/config/config.toml", buffer.Bytes(), 0644); err != nil {
+	if err := ioutil.WriteFile(config.RootPath+"/config/config.toml", buffer.Bytes(), 0644); err != nil {
 		panic(err)
 	}
 

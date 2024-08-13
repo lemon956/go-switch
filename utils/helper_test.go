@@ -18,3 +18,8 @@ func TestRenameDir(t *testing.T) {
 	err := RenameDir(srcPath, "go1.22.6")
 	require.Nil(t, err)
 }
+
+func Test(t *testing.T) {
+	rsp := JudgeZshOrBash()
+	t.Log(rsp)
+}
