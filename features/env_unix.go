@@ -21,7 +21,7 @@ func UpdateGoEnvUnix(goRoot string) {
 		configFile := os.Getenv("HOME") + "/.zshrc"
 		addEnvironmentVariable(configFile, goRootCmd)
 		addEnvironmentVariable(configFile, pathCmd)
-		if err := reloadZshCOnfig(configFile); err != nil {
+		if err := reloadZshCOnfig("zsh", configFile); err != nil {
 			fmt.Printf("Failed to reload zsh config: %v\n", err)
 			panic(err)
 		}
@@ -32,7 +32,7 @@ func UpdateGoEnvUnix(goRoot string) {
 		}
 		addEnvironmentVariable(configFile, goRootCmd)
 		addEnvironmentVariable(configFile, pathCmd)
-		if err := reloadZshCOnfig(configFile); err != nil {
+		if err := reloadZshCOnfig("bash", configFile); err != nil {
 			fmt.Printf("Failed to reload zsh config: %v\n", err)
 			panic(err)
 		}
@@ -70,8 +70,8 @@ func addEnvironmentVariable(configFile, line string) {
 	}
 }
 
-func reloadZshCOnfig(shPath string) error {
-	cmd := exec.Command("zsh", "-c", fmt.Sprintf("source %s", shPath))
+func reloadZshCOnfig(shCmd string, shPath string) error {
+	cmd := exec.Command(shCmd, "-c", fmt.Sprintf("source %s", shPath))
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	return cmd.Run()
