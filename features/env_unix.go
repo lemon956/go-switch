@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/xulimeng/go-switch/config"
+	"github.com/xulimeng/go-switch/utils"
 )
 
 // UpdateGoEnvUnix 更新 Unix 系统的环境变量
@@ -16,29 +17,39 @@ func UpdateGoEnvUnix(goRoot string) {
 	sh := JudgeZshOrBash()
 	goRootCmd := fmt.Sprintf("export GOROOT=%s", goRoot)
 	pathCmd := "export PATH=$PATH:$GOROOT/bin"
-	switch sh {
-	case "zsh":
-		configFile := os.Getenv("HOME") + "/.zshrc"
-		addEnvironmentVariable(configFile, goRootCmd)
-		addEnvironmentVariable(configFile, pathCmd)
-		if err := reloadZshCOnfig("zsh", configFile); err != nil {
-			fmt.Printf("Failed to reload zsh config: %v\n", err)
+	if config.GoEnvFilePath != "" {
+		if err := utils.TruncateFile(config.ConnectPathWithEnv(config.SystemEnv, config.GoEnvFilePath, []string{"system"})); err != nil {
 			panic(err)
 		}
-	case "bash":
-		configFile := os.Getenv("HOME") + "/.bashrc"
-		if config.SystemEnv == config.Mac {
-			configFile = os.Getenv("HOME") + "/.bash_profile"
-		}
-		addEnvironmentVariable(configFile, goRootCmd)
-		addEnvironmentVariable(configFile, pathCmd)
-		if err := reloadZshCOnfig("bash", configFile); err != nil {
-			fmt.Printf("Failed to reload zsh config: %v\n", err)
-			panic(err)
-		}
-	default:
-		fmt.Println("Not support shell")
+		addEnvironmentVariable(config.GoEnvFilePath, goRootCmd)
+		addEnvironmentVariable(config.GoEnvFilePath, pathCmd)
 	}
+	if !config.Conf.Init {
+		var configFile string
+		switch sh {
+		case "zsh":
+			configFile := os.Getenv("HOME") + "/.zshrc"
+			if err := reloadZshCOnfig("zsh", configFile); err != nil {
+				fmt.Printf("Failed to reload zsh config: %v\n", err)
+				panic(err)
+			}
+		case "bash":
+			configFile := os.Getenv("HOME") + "/.bashrc"
+			if config.SystemEnv == config.Mac {
+				configFile = os.Getenv("HOME") + "/.bash_profile"
+			}
+			if err := reloadZshCOnfig("bash", configFile); err != nil {
+				fmt.Printf("Failed to reload bash config: %v\n", err)
+				panic(err)
+			}
+		default:
+			fmt.Println("Not support shell")
+		}
+		if configFile != "" && config.GoEnvFilePath != "" {
+			addEnvironmentVariable(configFile, fmt.Sprintf("source %s", config.GoEnvFilePath))
+		}
+	}
+
 }
 
 // addEnvironmentVariable 添加环境变量
@@ -98,15 +109,4 @@ func JudgeZshOrBash() string {
 		return "bash"
 	}
 	return ""
-}
-
-// ConnectPathWithEnv 根据不同系统环境拼接路径
-func ConnectPathWithEnv(env config.Env, basePath string, connectPaths []string) string {
-	if env == config.Linux || env == config.Mac {
-		return fmt.Sprintf("%s/%s", basePath, strings.Join(connectPaths, "/"))
-	} else if env == config.Windows {
-		return fmt.Sprintf("%s\\%s", basePath, strings.Join(connectPaths, "\\"))
-	} else {
-		return ""
-	}
 }

@@ -9,6 +9,7 @@ import (
 
 type Config struct {
 	GoSwitchPath string       `toml:"go_switch_path"`
+	Init         bool         `toml:"init"`
 	LocalGos     []GosVersion `toml:"local_gos"`
 
 	// 当前生效的 golang 环境变量

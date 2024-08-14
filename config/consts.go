@@ -31,4 +31,5 @@ var (
 	RootPath      string
 	GosPath       string
 	TempUnzipPath string
+	GoEnvFilePath string
 )

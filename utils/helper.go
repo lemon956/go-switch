@@ -3,6 +3,7 @@ package utils
 import (
 	"archive/tar"
 	"compress/gzip"
+	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -177,6 +178,37 @@ func SetPermissions(path string) error {
 
 		return nil
 	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func FileExists(path string) (bool, bool) {
+	_, err := os.Stat(path)
+	if err == nil {
+		return true, false
+	} else {
+		if exists, create := ExistsPath(path); !exists && !create {
+			return false, false
+		}
+		_, err = os.Create(path)
+		if err != nil {
+			return false, false
+		}
+	}
+	return false, true
+}
+
+func TruncateFile(filePath string) error {
+	fs, err := os.Stat(filePath)
+	if err != nil {
+		return err
+	}
+	if fs.IsDir() {
+		return errors.New("file is a directory")
+	}
+	_, err = os.OpenFile(filePath, os.O_RDWR|os.O_TRUNC, 0644)
 	if err != nil {
 		return err
 	}

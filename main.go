@@ -47,6 +47,10 @@ func main() {
 		panic("RootPath not exists")
 	}
 
+	if exists, create := utils.ExistsPath(config.GoEnvFilePath); !exists && !create {
+		panic("GoEnvFilePath not exists")
+	}
+
 	// 初始化配置文
 	config.InitConfigFile()
 	fmt.Println("-----------Command: ", cmd)

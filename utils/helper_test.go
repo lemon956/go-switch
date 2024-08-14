@@ -22,3 +22,9 @@ func TestRenameDir(t *testing.T) {
 func Test(t *testing.T) {
 	SetPermissions("/home/hellotalk/.go-switch/gos/go1.22.6")
 }
+
+func TestTruncateFile(t *testing.T) {
+	err := TruncateFile("/home/hellotalk/.go-switch/config/config.toml.bck")
+	t.Log(err)
+	require.Nil(t, err)
+}

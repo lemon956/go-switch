@@ -32,7 +32,7 @@ func Switch() {
 		return
 	}
 
-	goRootPath := ConnectPathWithEnv(config.SystemEnv, config.GosPath, []string{result})
+	goRootPath := config.ConnectPathWithEnv(config.SystemEnv, config.GosPath, []string{result})
 
 	// TODO: support windows
 	if config.SystemEnv == config.Windows {

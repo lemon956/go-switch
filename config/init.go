@@ -2,9 +2,9 @@ package config
 
 import (
 	"fmt"
-	"os"
 	"os/user"
 	"runtime"
+	"strings"
 
 	"github.com/BurntSushi/toml"
 	"github.com/xulimeng/go-switch/utils"
@@ -27,19 +27,13 @@ func LoadConfig() {
 }
 
 func InitConfigFile() {
-	_, err := os.Stat(RootPath + "/config/config.toml")
-	if err == nil {
-		return
-	} else {
-		if exists, create := utils.ExistsPath(RootPath + "/config/"); !exists && !create {
-			panic("RootPath not exists")
-		}
-
-		_, err = os.Create(RootPath + "/config/config.toml")
-		if err != nil {
-			panic(err)
-		}
+	if exists, create := utils.FileExists(RootPath + "/config/config.toml"); !exists && !create {
+		panic("config file not exists")
 	}
+	if exists, create := utils.FileExists(GoEnvFilePath + "/system"); !exists && !create {
+		panic("system env file not exists")
+	}
+
 }
 
 func InitSystemVars() {
@@ -51,6 +45,7 @@ func InitSystemVars() {
 		RootPath = LinuxGoPath + GoSwitchDir
 		GosPath = RootPath + "/" + SaveGoDir
 		TempUnzipPath = GosPath + "/" + UnzipGoDir
+
 	case "windows":
 		SystemEnv = Windows
 		userNameCurr, err := user.Current()
@@ -67,4 +62,16 @@ func InitSystemVars() {
 		TempUnzipPath = GosPath + "/" + UnzipGoDir
 	}
 	SystemArch = runtime.GOARCH
+	GoEnvFilePath = ConnectPathWithEnv(SystemEnv, RootPath, []string{"environment"})
+}
+
+// ConnectPathWithEnv 根据不同系统环境拼接路径
+func ConnectPathWithEnv(env Env, basePath string, connectPaths []string) string {
+	if env == Linux || env == Mac {
+		return fmt.Sprintf("%s/%s", basePath, strings.Join(connectPaths, "/"))
+	} else if env == Windows {
+		return fmt.Sprintf("%s\\%s", basePath, strings.Join(connectPaths, "\\"))
+	} else {
+		return ""
+	}
 }
