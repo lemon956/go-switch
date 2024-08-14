@@ -5,9 +5,12 @@ import (
 	"compress/gzip"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"os"
+	"os/user"
 	"path/filepath"
+	"strconv"
 
 	"github.com/schollz/progressbar/v3"
 )
@@ -134,10 +137,34 @@ func ExistsPath(path string) (bool, bool) {
 		if err := os.MkdirAll(path, os.ModePerm); err != nil {
 			return false, false
 		}
-		if err := os.Chmod(path, 0755); err != nil {
+		if err := SetPermissions(path); err != nil {
 			return false, false
 		}
 		return false, true
 	}
 	return err == nil, false
+}
+
+func SetPermissions(path string) error {
+	// 获取当前登录用户
+	currentUser, err := user.Current()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// 解析 UID 和 GID
+	uidStr := currentUser.Uid
+	uid, _ := strconv.Atoi(uidStr)
+	gidStr := currentUser.Gid
+	gid, _ := strconv.Atoi(gidStr)
+	err = os.Chmod(path, 0755)
+	if err != nil {
+		return err
+	}
+
+	err = os.Chown(path, uid, gid)
+	if err != nil {
+		return err
+	}
+	return nil
 }

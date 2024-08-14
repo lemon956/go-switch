@@ -61,9 +61,9 @@ func Install(searchVer string, system string, arch string, savePath string, unzi
 					if config.SystemEnv == config.Windows {
 						afterRenamePath = config.GosPath + "\\" + version.Version
 					}
-					err = os.Chmod(afterRenamePath, 0755)
+					err = utils.SetPermissions(afterRenamePath)
 					if err != nil {
-						panic(fmt.Sprintf("Chmod %s failed: %v", file.Filename, err))
+						panic(fmt.Sprintf("SetPermissions %s failed: %v", file.Filename, err))
 					}
 					config.Conf.LocalGos = append(config.Conf.LocalGos, config.GosVersion{
 						Version: version.Version,

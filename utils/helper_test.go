@@ -19,3 +19,6 @@ func TestRenameDir(t *testing.T) {
 	require.Nil(t, err)
 }
 
+func Test(t *testing.T) {
+	SetPermissions("/home/hellotalk/.go-switch/gos/go1.22.6")
+}
