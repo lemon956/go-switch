@@ -14,28 +14,31 @@ func LoadConfig() {
 	if Conf == nil {
 		Conf = &Config{}
 	}
-	mt, err := toml.DecodeFile(RootPath+"/config/config.toml", Conf)
+	configFilePath := RootPath + "/config/config.toml"
+	fmt.Println("---------------configFilePath: ", configFilePath)
+	_, err := toml.DecodeFile(configFilePath, Conf)
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println(mt)
 	if Conf.GoSwitchPath == "" && RootPath != "" {
 		Conf.GoSwitchPath = RootPath
+		Conf.SaveConfig()
 	}
 }
 
 func InitConfigFile() {
 	_, err := os.Stat(RootPath + "/config/config.toml")
-	if os.IsExist(err) {
+	if err == nil {
 		return
-	}
-	if exists, create := utils.ExistsPath(RootPath + "/config/"); !exists && !create {
-		panic("RootPath not exists")
-	}
+	} else {
+		if exists, create := utils.ExistsPath(RootPath + "/config/"); !exists && !create {
+			panic("RootPath not exists")
+		}
 
-	_, err = os.Create(RootPath + "/config/config.toml")
-	if err != nil {
-		panic(err)
+		_, err = os.Create(RootPath + "/config/config.toml")
+		if err != nil {
+			panic(err)
+		}
 	}
 }
 

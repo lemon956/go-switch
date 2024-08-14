@@ -65,6 +65,7 @@ func Install(searchVer string, system string, arch string, savePath string, unzi
 						Version: version.Version,
 						Path:    afterRenamePath,
 					})
+					config.Conf.SaveConfig()
 				}
 			}
 		}

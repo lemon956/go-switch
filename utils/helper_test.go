@@ -19,7 +19,3 @@ func TestRenameDir(t *testing.T) {
 	require.Nil(t, err)
 }
 
-func Test(t *testing.T) {
-	rsp := JudgeZshOrBash()
-	t.Log(rsp)
-}

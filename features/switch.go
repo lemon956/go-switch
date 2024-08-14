@@ -2,11 +2,9 @@ package features
 
 import (
 	"fmt"
-	"os"
 
 	"github.com/manifoldco/promptui"
 	"github.com/xulimeng/go-switch/config"
-	"github.com/xulimeng/go-switch/utils"
 )
 
 const Exit = "exit"
@@ -34,26 +32,15 @@ func Switch() {
 		return
 	}
 
-	// TODO: switch version
-}
+	goRootPath := ConnectPathWithEnv(config.SystemEnv, config.GosPath, []string{result})
 
-func UpdateGoEnv(goRoot string) {
-	// set GOROOT
-	if config.SystemEnv == config.Linux || config.SystemEnv == config.Mac {
-		sh := utils.JudgeZshOrBash()
-		switch sh {
-		case "zsh":
-
-			break
-		case "bash":
-			break
-		default:
-			fmt.Println("Not support shell")
-		}
+	// TODO: support windows
+	if config.SystemEnv == config.Windows {
+		fmt.Println("Windows not support switch version")
+		return
+	} else if config.SystemEnv == config.Mac || config.SystemEnv == config.Linux {
+		UpdateGoEnvUnix(goRootPath)
 	}
-	err := os.Setenv("GOROOT", goRoot)
-	if err != nil {
-		panic(err)
-	}
-	// set PATH
+	config.Conf.GoRoot = goRootPath
+	config.Conf.SaveConfig()
 }

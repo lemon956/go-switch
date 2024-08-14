@@ -1,12 +1,9 @@
 package main
 
 import (
-	"bytes"
 	"fmt"
-	"io/ioutil"
 	"os"
 
-	"github.com/BurntSushi/toml"
 	"github.com/xulimeng/go-switch/config"
 	"github.com/xulimeng/go-switch/features"
 	"github.com/xulimeng/go-switch/utils"
@@ -73,16 +70,6 @@ func main() {
 		features.Switch()
 	default:
 		fmt.Println("Command not found")
-	}
-
-	// 更新配置文件
-	var buffer bytes.Buffer
-	encoder := toml.NewEncoder(&buffer)
-	if err := encoder.Encode(config.Conf); err != nil {
-		panic(err)
-	}
-	if err := ioutil.WriteFile(config.RootPath+"/config/config.toml", buffer.Bytes(), 0644); err != nil {
-		panic(err)
 	}
 
 }

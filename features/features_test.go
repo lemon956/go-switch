@@ -23,3 +23,8 @@ func TestMain(m *testing.M) {
 func TestSwitch(t *testing.T) {
 	Switch()
 }
+
+func Test(t *testing.T) {
+	rsp := JudgeZshOrBash()
+	t.Log(rsp)
+}
