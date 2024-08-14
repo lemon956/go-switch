@@ -198,7 +198,7 @@ func FileExists(path string) (bool, bool) {
 			}
 			currentPath = filepath.Join(currentPath, part)
 			// 如果路径不存在则创建
-			if exists, create := ExistsPath(path); !exists && !create {
+			if exists, create := ExistsPath(currentPath); !exists && !create {
 				return false, false
 			}
 		}
