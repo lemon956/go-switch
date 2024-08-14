@@ -157,12 +157,26 @@ func SetPermissions(path string) error {
 	uid, _ := strconv.Atoi(uidStr)
 	gidStr := currentUser.Gid
 	gid, _ := strconv.Atoi(gidStr)
-	err = os.Chmod(path, 0755)
-	if err != nil {
-		return err
-	}
+	// 使用 filepath.Walk 递归遍历目录树
+	err = filepath.Walk(path, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
 
-	err = os.Chown(path, uid, gid)
+		// 改变文件或目录的权限
+		err = os.Chmod(path, 0755)
+		if err != nil {
+			return err
+		}
+
+		// 改变文件或目录的所有权
+		err = os.Chown(path, uid, gid)
+		if err != nil {
+			return err
+		}
+
+		return nil
+	})
 	if err != nil {
 		return err
 	}

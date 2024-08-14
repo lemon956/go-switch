@@ -61,7 +61,7 @@ func Install(searchVer string, system string, arch string, savePath string, unzi
 					if config.SystemEnv == config.Windows {
 						afterRenamePath = config.GosPath + "\\" + version.Version
 					}
-					err = utils.SetPermissions(afterRenamePath)
+					err = utils.SetPermissions(ConnectPathWithEnv(config.SystemEnv, afterRenamePath, []string{"bin"}))
 					if err != nil {
 						panic(fmt.Sprintf("SetPermissions %s failed: %v", file.Filename, err))
 					}
