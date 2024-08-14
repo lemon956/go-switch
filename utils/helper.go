@@ -134,6 +134,9 @@ func ExistsPath(path string) (bool, bool) {
 		if err := os.MkdirAll(path, os.ModePerm); err != nil {
 			return false, false
 		}
+		if err := os.Chmod(path, 0755); err != nil {
+			return false, false
+		}
 		return false, true
 	}
 	return err == nil, false
