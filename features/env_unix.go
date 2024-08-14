@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"strings"
 
 	"github.com/xulimeng/go-switch/config"
@@ -18,7 +19,7 @@ func UpdateGoEnvUnix(goRoot string) {
 	goRootCmd := fmt.Sprintf("export GOROOT=%s", goRoot)
 	pathCmd := "export PATH=$PATH:$GOROOT/bin"
 	if config.GoEnvFilePath != "" {
-		if err := utils.TruncateFile(config.ConnectPathWithEnv(config.SystemEnv, config.GoEnvFilePath, []string{"system"})); err != nil {
+		if err := utils.TruncateFile(filepath.Join(config.GoEnvFilePath, "system")); err != nil {
 			panic(err)
 		}
 		addEnvironmentVariable(config.GoEnvFilePath, goRootCmd)

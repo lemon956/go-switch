@@ -12,6 +12,7 @@ import (
 	"os/user"
 	"path/filepath"
 	"strconv"
+	"strings"
 
 	"github.com/schollz/progressbar/v3"
 )
@@ -189,8 +190,17 @@ func FileExists(path string) (bool, bool) {
 	if err == nil {
 		return true, false
 	} else {
-		if exists, create := ExistsPath(path); !exists && !create {
-			return false, false
+		parts := strings.Split(path, string(os.PathSeparator))
+		currentPath := string(os.PathSeparator)
+		for _, part := range parts {
+			if part == "" {
+				continue
+			}
+			currentPath = filepath.Join(currentPath, part)
+			// 如果路径不存在则创建
+			if exists, create := ExistsPath(path); !exists && !create {
+				return false, false
+			}
 		}
 		_, err = os.Create(path)
 		if err != nil {

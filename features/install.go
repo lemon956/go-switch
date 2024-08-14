@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"path/filepath"
 
 	"github.com/xulimeng/go-switch/config"
 	"github.com/xulimeng/go-switch/models"
@@ -61,7 +62,8 @@ func Install(searchVer string, system string, arch string, savePath string, unzi
 					if config.SystemEnv == config.Windows {
 						afterRenamePath = config.GosPath + "\\" + version.Version
 					}
-					err = utils.SetPermissions(config.ConnectPathWithEnv(config.SystemEnv, afterRenamePath, []string{"bin"}))
+
+					err = utils.SetPermissions(filepath.Join(afterRenamePath, "bin"))
 					if err != nil {
 						panic(fmt.Sprintf("SetPermissions %s failed: %v", file.Filename, err))
 					}

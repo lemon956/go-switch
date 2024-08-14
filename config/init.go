@@ -3,8 +3,8 @@ package config
 import (
 	"fmt"
 	"os/user"
+	"path/filepath"
 	"runtime"
-	"strings"
 
 	"github.com/BurntSushi/toml"
 	"github.com/xulimeng/go-switch/utils"
@@ -62,16 +62,5 @@ func InitSystemVars() {
 		TempUnzipPath = GosPath + "/" + UnzipGoDir
 	}
 	SystemArch = runtime.GOARCH
-	GoEnvFilePath = ConnectPathWithEnv(SystemEnv, RootPath, []string{"environment"})
-}
-
-// ConnectPathWithEnv 根据不同系统环境拼接路径
-func ConnectPathWithEnv(env Env, basePath string, connectPaths []string) string {
-	if env == Linux || env == Mac {
-		return fmt.Sprintf("%s/%s", basePath, strings.Join(connectPaths, "/"))
-	} else if env == Windows {
-		return fmt.Sprintf("%s\\%s", basePath, strings.Join(connectPaths, "\\"))
-	} else {
-		return ""
-	}
+	GoEnvFilePath = filepath.Join(RootPath, "environment")
 }

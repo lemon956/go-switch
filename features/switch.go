@@ -2,6 +2,7 @@ package features
 
 import (
 	"fmt"
+	"path/filepath"
 
 	"github.com/manifoldco/promptui"
 	"github.com/xulimeng/go-switch/config"
@@ -32,7 +33,7 @@ func Switch() {
 		return
 	}
 
-	goRootPath := config.ConnectPathWithEnv(config.SystemEnv, config.GosPath, []string{result})
+	goRootPath := filepath.Join(config.GosPath, result)
 
 	// TODO: support windows
 	if config.SystemEnv == config.Windows {
