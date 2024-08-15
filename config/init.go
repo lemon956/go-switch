@@ -15,7 +15,7 @@ func LoadConfig() {
 	if Conf == nil {
 		Conf = &Config{}
 	}
-	configFilePath := filepath.Join(RootPath + "config")
+	configFilePath := filepath.Join(RootPath, "config")
 	fmt.Println("---------------configFilePath: ", configFilePath)
 	_, err := toml.DecodeFile(fmt.Sprintf("%s%s%s", configFilePath, string(os.PathSeparator), "config.toml"), Conf)
 	if err != nil {
