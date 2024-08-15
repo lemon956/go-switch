@@ -48,6 +48,8 @@ func UpdateGoEnvUnix(goRoot string) {
 		}
 		if configFile != "" && config.GoEnvFilePath != "" {
 			addEnvironmentVariable(configFile, fmt.Sprintf("source %s", config.GoEnvFilePath))
+			config.Conf.Init = true
+			config.Conf.SaveConfig()
 		}
 	}
 
