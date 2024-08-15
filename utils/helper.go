@@ -192,11 +192,15 @@ func FileExists(path string) (bool, bool) {
 	} else {
 		parts := strings.Split(path, string(os.PathSeparator))
 		currentPath := string(os.PathSeparator)
-		for _, part := range parts[0 : len(parts)-2] {
+		if len(parts) > 0 && parts[0] == "." {
+			currentPath = "." + string(os.PathSeparator)
+		}
+		for _, part := range parts[0 : len(parts)-1] {
 			if part == "" {
 				continue
 			}
 			currentPath = filepath.Join(currentPath, part)
+			fmt.Println(currentPath)
 			// 如果路径不存在则创建
 			if exists, create := ExistsPath(currentPath); !exists && !create {
 				return false, false
@@ -204,6 +208,7 @@ func FileExists(path string) (bool, bool) {
 		}
 		_, err = os.Create(path)
 		if err != nil {
+			fmt.Println(err)
 			return false, false
 		}
 	}

@@ -28,3 +28,8 @@ func TestTruncateFile(t *testing.T) {
 	t.Log(err)
 	require.Nil(t, err)
 }
+
+func TestFileExists(t *testing.T) {
+	exists, create := FileExists("./test/test1/config.toml")
+	t.Log(exists, create)
+}
