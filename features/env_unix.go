@@ -19,11 +19,12 @@ func UpdateGoEnvUnix(goRoot string) {
 	goRootCmd := fmt.Sprintf("export GOROOT=%s", goRoot)
 	pathCmd := "export PATH=$PATH:$GOROOT/bin"
 	if config.GoEnvFilePath != "" {
-		if err := utils.TruncateFile(filepath.Join(config.GoEnvFilePath, "system")); err != nil {
+		goEnvFilePath := filepath.Join(config.GoEnvFilePath, "system")
+		if err := utils.TruncateFile(goEnvFilePath); err != nil {
 			panic(err)
 		}
-		addEnvironmentVariable(config.GoEnvFilePath, goRootCmd)
-		addEnvironmentVariable(config.GoEnvFilePath, pathCmd)
+		addEnvironmentVariable(goEnvFilePath, goRootCmd)
+		addEnvironmentVariable(goEnvFilePath, pathCmd)
 	}
 	if !config.Conf.Init {
 		var configFile string
