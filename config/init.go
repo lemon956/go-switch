@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"os"
 	"os/user"
 	"path/filepath"
 	"runtime"
@@ -14,9 +15,9 @@ func LoadConfig() {
 	if Conf == nil {
 		Conf = &Config{}
 	}
-	configFilePath := filepath.Join(RootPath+"config", "config.toml")
+	configFilePath := filepath.Join(RootPath + "config")
 	fmt.Println("---------------configFilePath: ", configFilePath)
-	_, err := toml.DecodeFile(configFilePath, Conf)
+	_, err := toml.DecodeFile(fmt.Sprintf("%s%s%s", configFilePath, string(os.PathSeparator), "config.toml"), Conf)
 	if err != nil {
 		panic(err)
 	}
@@ -28,11 +29,11 @@ func LoadConfig() {
 
 func InitConfigFile() {
 
-	if exists, create := utils.FileExists(filepath.Join(RootPath, "config", "config.toml")); !exists && !create {
+	if exists, create := utils.FileExists(fmt.Sprintf("%s%s%s", filepath.Join(RootPath, "config"), string(os.PathSeparator), "config.toml")); !exists && !create {
 		panic("config file not exists")
 	}
 
-	if exists, create := utils.FileExists(filepath.Join(GoEnvFilePath, "system")); !exists && !create {
+	if exists, create := utils.FileExists(fmt.Sprintf("%s%s%s", GoEnvFilePath, string(os.PathSeparator), "system")); !exists && !create {
 		panic("system env file not exists")
 	}
 
