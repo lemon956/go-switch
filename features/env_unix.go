@@ -25,32 +25,28 @@ func UpdateGoEnvUnix(goRoot string) {
 		addEnvironmentVariable(goEnvFilePath, goRootCmd)
 		addEnvironmentVariable(goEnvFilePath, pathCmd)
 	}
-	if !config.Conf.Init {
-		var configFile string
-		switch sh {
-		case "zsh":
-			configFile := os.Getenv("HOME") + "/.zshrc"
-			if err := reloadZshCOnfig("zsh", configFile); err != nil {
-				fmt.Printf("Failed to reload zsh config: %v\n", err)
-				panic(err)
-			}
-		case "bash":
-			configFile := os.Getenv("HOME") + "/.bashrc"
-			if config.SystemEnv == config.Mac {
-				configFile = os.Getenv("HOME") + "/.bash_profile"
-			}
-			if err := reloadZshCOnfig("bash", configFile); err != nil {
-				fmt.Printf("Failed to reload bash config: %v\n", err)
-				panic(err)
-			}
-		default:
-			fmt.Println("Not support shell")
+	var configFile string
+	switch sh {
+	case "zsh":
+		configFile = os.Getenv("HOME") + "/.zshrc"
+	case "bash":
+		configFile = os.Getenv("HOME") + "/.bashrc"
+		if config.SystemEnv == config.Mac {
+			configFile = os.Getenv("HOME") + "/.bash_profile"
 		}
-		if configFile != "" && config.GoEnvFilePath != "" {
-			addEnvironmentVariable(configFile, fmt.Sprintf("source %s", config.GoEnvFilePath))
-			config.Conf.Init = true
-			config.Conf.SaveConfig()
-		}
+	default:
+		fmt.Println("Not support shell")
+	}
+	if !config.Conf.Init && configFile != "" && config.GoEnvFilePath != "" {
+		addEnvironmentVariable(configFile, fmt.Sprintf("source %s", config.GoEnvFilePath))
+	}
+	if err := reloadZshCOnfig(sh, configFile); err != nil {
+		fmt.Printf("Failed to reload %s config: %v\n", sh, err)
+		panic(err)
+	}
+	if !config.Conf.Init && configFile != "" && config.GoEnvFilePath != "" {
+		config.Conf.Init = true
+		config.Conf.SaveConfig()
 	}
 
 }

@@ -2,7 +2,10 @@ package config
 
 import (
 	"bytes"
+	"fmt"
 	"io/ioutil"
+	"os"
+	"path/filepath"
 
 	"github.com/BurntSushi/toml"
 )
@@ -31,7 +34,7 @@ func (c *Config) SaveConfig() {
 	if err := encoder.Encode(Conf); err != nil {
 		panic(err)
 	}
-	if err := ioutil.WriteFile(RootPath+"/config/config.toml", buffer.Bytes(), 0644); err != nil {
+	if err := ioutil.WriteFile(fmt.Sprintf("%s%s%s", filepath.Join(RootPath, "config"), string(os.PathSeparator), "config.toml"), buffer.Bytes(), 0644); err != nil {
 		panic(err)
 	}
 }
