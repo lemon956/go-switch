@@ -17,8 +17,8 @@ func UpdateGoEnvUnix(goRoot string) {
 	sh := JudgeZshOrBash()
 	goRootCmd := fmt.Sprintf("export GOROOT=%s", goRoot)
 	pathCmd := "export PATH=$PATH:$GOROOT/bin"
+	goEnvFilePath := fmt.Sprintf("%s%s%s", config.GoEnvFilePath, string(os.PathSeparator), "system")
 	if config.GoEnvFilePath != "" {
-		goEnvFilePath := fmt.Sprintf("%s%s%s", config.GoEnvFilePath, string(os.PathSeparator), "system")
 		if err := utils.TruncateFile(goEnvFilePath); err != nil {
 			panic(err)
 		}
@@ -36,15 +36,16 @@ func UpdateGoEnvUnix(goRoot string) {
 		}
 	default:
 		fmt.Println("Not support shell")
+		return
 	}
-	if !config.Conf.Init && configFile != "" && config.GoEnvFilePath != "" {
-		addEnvironmentVariable(configFile, fmt.Sprintf("source %s", config.GoEnvFilePath))
+	if !config.Conf.Init && configFile != "" && goEnvFilePath != "" {
+		addEnvironmentVariable(configFile, fmt.Sprintf("source %s", goEnvFilePath))
 	}
 	if err := reloadZshCOnfig(sh, configFile); err != nil {
 		fmt.Printf("Failed to reload %s config: %v\n", sh, err)
 		panic(err)
 	}
-	if !config.Conf.Init && configFile != "" && config.GoEnvFilePath != "" {
+	if !config.Conf.Init && configFile != "" && goEnvFilePath != "" {
 		config.Conf.Init = true
 		config.Conf.SaveConfig()
 	}
