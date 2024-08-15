@@ -192,7 +192,7 @@ func FileExists(path string) (bool, bool) {
 	} else {
 		parts := strings.Split(path, string(os.PathSeparator))
 		currentPath := string(os.PathSeparator)
-		for _, part := range parts {
+		for _, part := range parts[0 : len(parts)-2] {
 			if part == "" {
 				continue
 			}
