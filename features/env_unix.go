@@ -16,7 +16,7 @@ func UpdateGoEnvUnix(goRoot string) {
 	// set GOROOT
 	sh := JudgeZshOrBash()
 	goRootCmd := fmt.Sprintf("export GOROOT=%s", goRoot)
-	pathCmd := "export PATH=$PATH:$GOROOT/bin"
+	pathCmd := "export PATH=$GOROOT/bin:$PATH"
 	goEnvFilePath := fmt.Sprintf("%s%s%s", config.GoEnvFilePath, string(os.PathSeparator), "system")
 	if config.GoEnvFilePath != "" {
 		if err := utils.TruncateFile(goEnvFilePath); err != nil {
