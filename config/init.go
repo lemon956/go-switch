@@ -3,12 +3,10 @@ package config
 import (
 	"fmt"
 	"os"
-	"os/user"
 	"path/filepath"
 	"runtime"
 
 	"github.com/BurntSushi/toml"
-	"github.com/xulimeng/go-switch/utils"
 )
 
 func LoadConfig() {
@@ -27,12 +25,12 @@ func LoadConfig() {
 }
 
 func InitConfigFile() {
-
-	if exists, create := utils.FileExists(fmt.Sprintf("%s%s%s", filepath.Join(RootPath, "config"), string(os.PathSeparator), "config.toml")); !exists && !create {
+	fmt.Println("configPath", fmt.Sprintf("%s%s%s", filepath.Join(RootPath, "config"), string(os.PathSeparator), "config.toml"))
+	if exists, create := FileExists(fmt.Sprintf("%s%s%s", filepath.Join(RootPath, "config"), string(os.PathSeparator), "config.toml")); !exists && !create {
 		panic("config file not exists")
 	}
-
-	if exists, create := utils.FileExists(fmt.Sprintf("%s%s%s", GoEnvFilePath, string(os.PathSeparator), "system")); !exists && !create {
+	fmt.Println("GoEnvFilePath", fmt.Sprintf("%s%s%s", GoEnvFilePath, string(os.PathSeparator), "system"))
+	if exists, create := FileExists(fmt.Sprintf("%s%s%s", GoEnvFilePath, string(os.PathSeparator), "system")); !exists && !create {
 		panic("system env file not exists")
 	}
 
@@ -45,24 +43,16 @@ func InitSystemVars() {
 	case "linux":
 		SystemEnv = Linux
 		RootPath = LinuxGoPath + GoSwitchDir
-		GosPath = RootPath + "/" + SaveGoDir
-		TempUnzipPath = GosPath + "/" + UnzipGoDir
 
 	case "windows":
 		SystemEnv = Windows
-		userNameCurr, err := user.Current()
-		if err != nil {
-			panic(err)
-		}
-		RootPath = WindowsGoPath + userNameCurr.Username + "\\" + GoSwitchDir
-		GosPath = RootPath + "\\" + SaveGoDir
-		TempUnzipPath = GosPath + "\\" + UnzipGoDir
+		RootPath = WindowsGoPath + "\\" + GoSwitchDir
 	case "darwin":
 		SystemEnv = Mac
 		RootPath = MacGoPath + GoSwitchDir
-		GosPath = RootPath + "/" + SaveGoDir
-		TempUnzipPath = GosPath + "/" + UnzipGoDir
 	}
+	GosPath = filepath.Join(RootPath, SaveGoDir)
+	TempUnzipPath = filepath.Join(GosPath, UnzipGoDir)
 	SystemArch = runtime.GOARCH
 	GoEnvFilePath = filepath.Join(RootPath, "environment")
 }

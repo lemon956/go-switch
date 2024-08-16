@@ -23,7 +23,7 @@ const (
 var (
 	// 不同系统默认的 go 安装路径
 	LinuxGoPath   = fmt.Sprintf("%s/", os.Getenv("HOME"))
-	WindowsGoPath = `C:\\Users\\`
+	WindowsGoPath = fmt.Sprintf("%s/", os.Getenv("USERPROFILE"))
 	MacGoPath     = fmt.Sprintf("%s/", os.Getenv("HOME"))
 
 	SystemEnv     Env

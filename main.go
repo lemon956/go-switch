@@ -6,7 +6,6 @@ import (
 
 	"github.com/xulimeng/go-switch/config"
 	"github.com/xulimeng/go-switch/features"
-	"github.com/xulimeng/go-switch/utils"
 )
 
 func PrintHelp() {
@@ -39,11 +38,11 @@ func main() {
 		cmd = args[1]
 	}
 
-	if exists, create := utils.ExistsPath(config.RootPath); !exists && !create {
+	if exists, create := config.ExistsPath(config.RootPath); !exists && !create {
 		panic("RootPath not exists")
 	}
 
-	if exists, create := utils.ExistsPath(config.GoEnvFilePath); !exists && !create {
+	if exists, create := config.ExistsPath(config.GoEnvFilePath); !exists && !create {
 		panic("GoEnvFilePath not exists")
 	}
 
@@ -60,7 +59,7 @@ func main() {
 		if len(args) >= 3 {
 			searchVer = args[2]
 		}
-		if exists, create := utils.ExistsPath(config.GosPath); (exists || create) && searchVer != "" {
+		if exists, create := config.ExistsPath(config.GosPath); (exists || create) && searchVer != "" {
 			features.Install(searchVer, string(config.SystemEnv), config.SystemArch, config.GosPath, config.TempUnzipPath)
 		} else {
 			panic("Please input the version you want to install")

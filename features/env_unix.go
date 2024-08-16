@@ -1,3 +1,7 @@
+// env_unix.go
+//go:build !windows
+// +build !windows
+
 package features
 
 import (
@@ -8,7 +12,6 @@ import (
 	"strings"
 
 	"github.com/xulimeng/go-switch/config"
-	"github.com/xulimeng/go-switch/utils"
 )
 
 // UpdateGoEnvUnix 更新 Unix 系统的环境变量
@@ -19,7 +22,7 @@ func UpdateGoEnvUnix(goRoot string) {
 	pathCmd := "export PATH=$GOROOT/bin:$PATH"
 	goEnvFilePath := fmt.Sprintf("%s%s%s", config.GoEnvFilePath, string(os.PathSeparator), "system")
 	if config.GoEnvFilePath != "" {
-		if err := utils.TruncateFile(goEnvFilePath); err != nil {
+		if err := config.TruncateFile(goEnvFilePath); err != nil {
 			panic(err)
 		}
 		addEnvironmentVariable(goEnvFilePath, goRootCmd)
@@ -112,4 +115,8 @@ func JudgeZshOrBash() string {
 		return "bash"
 	}
 	return ""
+}
+
+func UpdateGoEnvWin() {
+	fmt.Println("UpdateGoEnvWin not in windows")
 }

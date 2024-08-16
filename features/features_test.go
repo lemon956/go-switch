@@ -5,12 +5,11 @@ import (
 	"testing"
 
 	"github.com/xulimeng/go-switch/config"
-	"github.com/xulimeng/go-switch/utils"
 )
 
 func TestMain(m *testing.M) {
 	config.InitSystemVars()
-	if exists, create := utils.ExistsPath(config.RootPath); !exists && !create {
+	if exists, create := config.ExistsPath(config.RootPath); !exists && !create {
 		panic("RootPath not exists")
 	}
 	config.InitConfigFile()

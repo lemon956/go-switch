@@ -5,11 +5,26 @@
 package features
 
 import (
+	"fmt"
+	"os"
+
 	"golang.org/x/sys/windows/registry"
 )
 
 func UpdateGoEnvWin() {
-	setEnvVar(registry.CURRENT_USER, "", "")
+	vallue := os.Getenv("PATH")
+	fmt.Println("os.Getenv ", vallue)
+
+	k, _, err := registry.CreateKey(registry.CURRENT_USER, `Environment`, registry.SET_VALUE)
+	if err != nil {
+		panic(err)
+	}
+	defer k.Close()
+	value, _, err := k.GetStringValue("PATH")
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println("registry.GetStringValue", value)
 }
 
 func setEnvVar(key registry.Key, envVar, value string) error {
@@ -25,4 +40,8 @@ func setEnvVar(key registry.Key, envVar, value string) error {
 	}
 
 	return nil
+}
+
+func UpdateGoEnvUnix() {
+	fmt.Println("UpdateGoEnvUnix not in unix")
 }

@@ -1,7 +1,6 @@
 package features
 
 import (
-	"fmt"
 	"path/filepath"
 
 	"github.com/manifoldco/promptui"
@@ -37,7 +36,7 @@ func Switch() {
 
 	// TODO: support windows
 	if config.SystemEnv == config.Windows {
-		fmt.Println("Windows not support switch version")
+		UpdateGoEnvWindows(goRootPath)
 		return
 	} else if config.SystemEnv == config.Mac || config.SystemEnv == config.Linux {
 		UpdateGoEnvUnix(goRootPath)

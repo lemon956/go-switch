@@ -9,7 +9,6 @@ import (
 
 	"github.com/xulimeng/go-switch/config"
 	"github.com/xulimeng/go-switch/models"
-	"github.com/xulimeng/go-switch/utils"
 )
 
 // Install 安装 Go 版本
@@ -42,15 +41,15 @@ func Install(searchVer string, system string, arch string, savePath string, unzi
 					fmt.Printf("Sha256: %s\n", file.Sha256)
 					fmt.Println("Download URL: https://golang.org/dl/" + file.Filename)
 					filePathName := savePath + "/" + file.Filename
-					err := utils.DownloadFile(models.GoBaseURL+file.Filename, filePathName)
+					err := config.DownloadFile(models.GoBaseURL+file.Filename, filePathName)
 					if err != nil {
 						panic(fmt.Sprintf("Download %s failed: %v", file.Filename, err))
 					}
-					err = utils.UnTarGz(filePathName, savePath)
+					err = config.UnTarGz(filePathName, savePath)
 					if err != nil {
 						panic(fmt.Sprintf("UnTarGz %s failed: %v", file.Filename, err))
 					}
-					err = utils.RenameDir(unzipGoPath, version.Version)
+					err = config.RenameDir(unzipGoPath, version.Version)
 					if err != nil {
 						panic(fmt.Sprintf("RenameDir %s failed: %v", file.Filename, err))
 					}
@@ -62,10 +61,16 @@ func Install(searchVer string, system string, arch string, savePath string, unzi
 					if config.SystemEnv == config.Windows {
 						afterRenamePath = config.GosPath + "\\" + version.Version
 					}
-
-					err = utils.SetPermissions(filepath.Join(afterRenamePath, "bin"))
-					if err != nil {
-						panic(fmt.Sprintf("SetPermissions %s failed: %v", file.Filename, err))
+					if config.SystemEnv == config.Windows {
+						err = config.SetPermissionsWindows(afterRenamePath)
+						if err != nil {
+							panic(fmt.Sprintf("SetPermissionsWindows %s failed: %v", file.Filename, err))
+						}
+					} else if config.SystemEnv == config.Linux || config.SystemEnv == config.Mac {
+						err = config.SetPermissionsUnix(filepath.Join(afterRenamePath, "bin"))
+						if err != nil {
+							panic(fmt.Sprintf("SetPermissionsUnix %s failed: %v", file.Filename, err))
+						}
 					}
 					config.Conf.LocalGos = append(config.Conf.LocalGos, config.GosVersion{
 						Version: version.Version,
