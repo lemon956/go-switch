@@ -40,16 +40,19 @@ func UpdateGoEnvUnix(goRoot string) {
 	}
 	if !config.Conf.Init && configFile != "" && goEnvFilePath != "" {
 		addEnvironmentVariable(configFile, fmt.Sprintf("source %s", goEnvFilePath))
-	}
-	if err := reloadZshCOnfig(sh, configFile); err != nil {
-		fmt.Printf("Failed to reload %s config: %v\n", sh, err)
-		panic(err)
-	}
-	if !config.Conf.Init && configFile != "" && goEnvFilePath != "" {
 		config.Conf.Init = true
 		config.Conf.SaveConfig()
 	}
-
+	// if err := reloadZshCOnfig(sh, configFile); err != nil {
+	// 	fmt.Printf("Failed to reload %s config: %v\n", sh, err)
+	// 	panic(err)
+	// }
+	// if !config.Conf.Init && configFile != "" && goEnvFilePath != "" {
+	// 	config.Conf.Init = true
+	// 	config.Conf.SaveConfig()
+	// }
+	fmt.Println("Please execute the following command: ")
+	fmt.Println("source " + configFile)
 }
 
 // addEnvironmentVariable 添加环境变量

@@ -30,13 +30,9 @@ func init() {
 	config.InitSystemVars()
 	config.InitConfigFile()
 	config.LoadConfig()
-	fmt.Println("init is over!!!")
 }
 
 func main() {
-
-	fmt.Println("SystemEnv: ", config.SystemEnv)
-
 	var cmd string
 	args := os.Args
 	if len(args) >= 2 {
@@ -53,7 +49,6 @@ func main() {
 
 	// 初始化配置文
 	config.InitConfigFile()
-	fmt.Println("-----------Command: ", cmd)
 
 	switch cmd {
 	case "help", "":
