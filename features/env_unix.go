@@ -14,8 +14,14 @@ import (
 	"github.com/xulimeng/go-switch/config"
 )
 
+type UnixSwitcher struct{}
+
+func init() {
+	GlobalSwitcher = &UnixSwitcher{}
+}
+
 // UpdateGoEnvUnix 更新 Unix 系统的环境变量
-func UpdateGoEnvUnix(goRoot string) {
+func (sw *UnixSwitcher) UpdateGoEnv(goRoot string) {
 	// set GOROOT
 	sh := JudgeZshOrBash()
 	goRootCmd := fmt.Sprintf("export GOROOT=%s", goRoot)

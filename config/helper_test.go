@@ -9,7 +9,7 @@ import (
 func TestUnTarGz(t *testing.T) {
 	targetPath := "/home/hellotalk/.go-switch/gos/go1.22.6.linux-amd64.tar.gz"
 	destPath := "/home/hellotalk/.go-switch/gos/"
-	err := UnTarGz(targetPath, destPath)
+	err := UntarGz(targetPath, destPath)
 	require.Nil(t, err)
 }
 
@@ -19,8 +19,11 @@ func TestRenameDir(t *testing.T) {
 	require.Nil(t, err)
 }
 
-func TestSetPermissionsUnix(t *testing.T) {
-	SetPermissionsUnix("/home/hellotalk/.go-switch/gos/go1.22.6")
+func TestSetPermissions(t *testing.T) {
+	if GlobalSetPermissions != nil {
+		err := GlobalSetPermissions.SetPermissions("/home/hellotalk/.go-switch/gos/go1.22.6")
+		require.Nil(t, err)
+	}
 }
 
 func TestTruncateFile(t *testing.T) {

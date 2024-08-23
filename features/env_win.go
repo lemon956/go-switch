@@ -11,20 +11,40 @@ import (
 	"golang.org/x/sys/windows/registry"
 )
 
-func UpdateGoEnvWin() {
-	vallue := os.Getenv("PATH")
-	fmt.Println("os.Getenv ", vallue)
+type WinDowsSwitcher struct{}
 
-	k, _, err := registry.CreateKey(registry.CURRENT_USER, `Environment`, registry.SET_VALUE)
+func init() {
+	GlobalSwitcher = &WinDowsSwitcher{}
+}
+
+const (
+	HKEY_CURRENT_USER  = 0x80000001
+	HKEY_LOCAL_MACHINE = 0x80000002
+)
+
+func (sw *WinDowsSwitcher) UpdateGoEnv(goRoot string) {
+	err := setEnvVar(registry.CURRENT_USER, "GOROOT", goRoot)
 	if err != nil {
 		panic(err)
+	}
+	keyValue, err := getEnvVar(registry.CURRENT_USER, "PATH")
+	if err != nil {
+		panic(err)
+	}
+	err = setEnvVar(registry.CURRENT_USER, "PATH", fmt.Sprintf("%%GOROOT%%%sbin;%s", string(os.PathSeparator), keyValue))
+	if err != nil {
+		panic(err)
+	}
+}
+
+func getEnvVar(key registry.Key, envKey string) (string, error) {
+	k, err := registry.OpenKey(key, `Environment`, registry.QUERY_VALUE)
+	if err != nil {
+		return "", err
 	}
 	defer k.Close()
-	value, _, err := k.GetStringValue("PATH")
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println("registry.GetStringValue", value)
+	value, _, err := k.GetStringValue(envKey)
+	return value, err
 }
 
 func setEnvVar(key registry.Key, envVar, value string) error {

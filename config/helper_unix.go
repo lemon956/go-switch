@@ -1,3 +1,7 @@
+//go:build linux || darwin
+// +build linux darwin
+
+// helper_unix.go 文件中定义了 SetPermissionsUnix 函数，用于设置文件或目录的权限和所有权。
 package config
 
 import (
@@ -8,7 +12,13 @@ import (
 	"strconv"
 )
 
-func SetPermissionsUnix(path string) error {
+type UnixSetPermissions struct{}
+
+func init() {
+	GlobalSetPermissions = &UnixSetPermissions{}
+}
+
+func (sp *UnixSetPermissions) SetPermissions(path string) error {
 	// 获取当前登录用户
 	currentUser, err := user.Current()
 	if err != nil {
@@ -43,5 +53,9 @@ func SetPermissionsUnix(path string) error {
 	if err != nil {
 		return err
 	}
+	return nil
+}
+
+func (sp *UnixSetPermissions) SetHiddenAttribute(path string) error {
 	return nil
 }

@@ -38,17 +38,6 @@ func main() {
 		cmd = args[1]
 	}
 
-	if exists, create := config.ExistsPath(config.RootPath); !exists && !create {
-		panic("RootPath not exists")
-	}
-
-	if exists, create := config.ExistsPath(config.GoEnvFilePath); !exists && !create {
-		panic("GoEnvFilePath not exists")
-	}
-
-	// 初始化配置文
-	config.InitConfigFile()
-
 	switch cmd {
 	case "help", "":
 		PrintHelp()
@@ -66,8 +55,11 @@ func main() {
 		}
 	case "switch":
 		features.Switch()
+	case "list":
+		features.List()
+	case "delete":
+		features.Delete()
 	default:
 		fmt.Println("Command not found")
 	}
-
 }

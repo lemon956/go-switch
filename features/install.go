@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net/http"
 	"os"
-	"path/filepath"
 
 	"github.com/xulimeng/go-switch/config"
 	"github.com/xulimeng/go-switch/models"
@@ -32,7 +31,7 @@ func Install(searchVer string, system string, arch string, savePath string, unzi
 	for _, version := range versions {
 		if version.Version == searchVer {
 			for _, file := range version.Files {
-				if system == file.OS && arch == file.Arch {
+				if system == file.OS && arch == file.Arch && file.Kind == "archive" {
 					fmt.Printf("OS: %s\n", file.OS)
 					fmt.Printf("Arch: %s\n", file.Arch)
 					fmt.Printf("Filename: %s\n", file.Filename)
@@ -40,12 +39,14 @@ func Install(searchVer string, system string, arch string, savePath string, unzi
 					fmt.Printf("Kind: %s\n", file.Kind)
 					fmt.Printf("Sha256: %s\n", file.Sha256)
 					fmt.Println("Download URL: https://golang.org/dl/" + file.Filename)
-					filePathName := savePath + "/" + file.Filename
-					err := config.DownloadFile(models.GoBaseURL+file.Filename, filePathName)
-					if err != nil {
-						panic(fmt.Sprintf("Download %s failed: %v", file.Filename, err))
+					filePathName := savePath + string(os.PathSeparator) + file.Filename
+					if exists, _ := config.FileExists(filePathName); !exists {
+						err := config.DownloadFile(models.GoBaseURL+file.Filename, filePathName)
+						if err != nil {
+							panic(fmt.Sprintf("Download %s failed: %v", file.Filename, err))
+						}
 					}
-					err = config.UnTarGz(filePathName, savePath)
+					err = config.Decompress(filePathName, savePath)
 					if err != nil {
 						panic(fmt.Sprintf("UnTarGz %s failed: %v", file.Filename, err))
 					}
@@ -61,17 +62,11 @@ func Install(searchVer string, system string, arch string, savePath string, unzi
 					if config.SystemEnv == config.Windows {
 						afterRenamePath = config.GosPath + "\\" + version.Version
 					}
-					if config.SystemEnv == config.Windows {
-						err = config.SetPermissionsWindows(afterRenamePath)
-						if err != nil {
-							panic(fmt.Sprintf("SetPermissionsWindows %s failed: %v", file.Filename, err))
-						}
-					} else if config.SystemEnv == config.Linux || config.SystemEnv == config.Mac {
-						err = config.SetPermissionsUnix(filepath.Join(afterRenamePath, "bin"))
-						if err != nil {
-							panic(fmt.Sprintf("SetPermissionsUnix %s failed: %v", file.Filename, err))
-						}
+
+					if err := config.GlobalSetPermissions.SetPermissions(afterRenamePath); err != nil {
+						panic(fmt.Sprintf("SetPermissions %s failed: %v", file.Filename, err))
 					}
+
 					config.Conf.LocalGos = append(config.Conf.LocalGos, config.GosVersion{
 						Version: version.Version,
 						Path:    afterRenamePath,

@@ -25,11 +25,27 @@ func LoadConfig() {
 }
 
 func InitConfigFile() {
-	fmt.Println("configPath", fmt.Sprintf("%s%s%s", filepath.Join(RootPath, "config"), string(os.PathSeparator), "config.toml"))
-	if exists, create := FileExists(fmt.Sprintf("%s%s%s", filepath.Join(RootPath, "config"), string(os.PathSeparator), "config.toml")); !exists && !create {
+
+	if exists, create := ExistsPath(RootPath); !exists && !create {
+		panic("RootPath not exists")
+	}
+	if err := GlobalSetPermissions.SetHiddenAttribute(RootPath); err != nil {
+		panic("RootPath SetHiddenAttribute failed " + err.Error())
+	}
+
+	if exists, create := ExistsPath(GoEnvFilePath); !exists && !create {
+		panic("GoEnvFilePath not exists")
+	}
+
+	configPath := filepath.Join(RootPath, "config")
+	if exists, create := ExistsPath(configPath); !exists && !create {
+		panic("configPath not exists")
+	}
+
+	if exists, create := FileExists(fmt.Sprintf("%s%s%s", configPath, string(os.PathSeparator), "config.toml")); !exists && !create {
 		panic("config file not exists")
 	}
-	fmt.Println("GoEnvFilePath", fmt.Sprintf("%s%s%s", GoEnvFilePath, string(os.PathSeparator), "system"))
+
 	if exists, create := FileExists(fmt.Sprintf("%s%s%s", GoEnvFilePath, string(os.PathSeparator), "system")); !exists && !create {
 		panic("system env file not exists")
 	}
@@ -38,18 +54,19 @@ func InitConfigFile() {
 
 func InitSystemVars() {
 
-	os := runtime.GOOS
-	switch os {
+	systemOs := runtime.GOOS
+	switch systemOs {
 	case "linux":
 		SystemEnv = Linux
-		RootPath = LinuxGoPath + GoSwitchDir
+		RootPath = filepath.Join(LinuxGoPath, GoSwitchDir)
 
 	case "windows":
 		SystemEnv = Windows
-		RootPath = WindowsGoPath + "\\" + GoSwitchDir
+		GoSwitchDir = "go-switch"
+		RootPath = filepath.Join(WindowsGoPath, GoSwitchDir)
 	case "darwin":
 		SystemEnv = Mac
-		RootPath = MacGoPath + GoSwitchDir
+		RootPath = filepath.Join(MacGoPath + GoSwitchDir)
 	}
 	GosPath = filepath.Join(RootPath, SaveGoDir)
 	TempUnzipPath = filepath.Join(GosPath, UnzipGoDir)

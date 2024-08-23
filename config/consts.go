@@ -1,7 +1,6 @@
 package config
 
 import (
-	"fmt"
 	"os"
 )
 
@@ -12,19 +11,21 @@ const (
 	Linux   Env = "linux"
 	Windows Env = "windows"
 	Mac     Env = "drawin" // mac os
+)
+
+var (
+
 	// go-switch 的文件夹名
 	GoSwitchDir = ".go-switch"
 	// 真正保存go 版本的文件夹名
 	SaveGoDir = "gos"
 	// golang 压缩包解压之后的文件夹名称
 	UnzipGoDir = "go"
-)
 
-var (
 	// 不同系统默认的 go 安装路径
-	LinuxGoPath   = fmt.Sprintf("%s/", os.Getenv("HOME"))
-	WindowsGoPath = fmt.Sprintf("%s/", os.Getenv("USERPROFILE"))
-	MacGoPath     = fmt.Sprintf("%s/", os.Getenv("HOME"))
+	LinuxGoPath   = os.Getenv("HOME")
+	WindowsGoPath = os.Getenv("USERPROFILE")
+	MacGoPath     = os.Getenv("HOME")
 
 	SystemEnv     Env
 	SystemArch    string

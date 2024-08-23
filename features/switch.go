@@ -9,6 +9,12 @@ import (
 
 const Exit = "exit"
 
+var GlobalSwitcher Switcher
+
+type Switcher interface {
+	UpdateGoEnv(goRoot string)
+}
+
 func Switch() {
 	versions := []string{}
 	if config.Conf.LocalGos == nil {
@@ -34,13 +40,7 @@ func Switch() {
 
 	goRootPath := filepath.Join(config.GosPath, result)
 
-	// TODO: support windows
-	if config.SystemEnv == config.Windows {
-		UpdateGoEnvWindows(goRootPath)
-		return
-	} else if config.SystemEnv == config.Mac || config.SystemEnv == config.Linux {
-		UpdateGoEnvUnix(goRootPath)
-	}
+	GlobalSwitcher.UpdateGoEnv(goRootPath)
 	config.Conf.GoRoot = goRootPath
 	config.Conf.SaveConfig()
 }

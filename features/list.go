@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/xulimeng/go-switch/config"
 	"github.com/xulimeng/go-switch/models"
 )
 
@@ -29,5 +30,15 @@ func ListAll() {
 	}
 	for i := len(versions) - 1; i >= 0; i-- {
 		fmt.Println(versions[i].Version)
+	}
+}
+
+func List() {
+	if len(config.Conf.LocalGos) > 0 {
+		for _, goInfo := range config.Conf.LocalGos {
+			fmt.Println(goInfo.Version)
+		}
+	} else {
+		fmt.Println("No version installed")
 	}
 }
