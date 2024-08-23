@@ -3,8 +3,9 @@
 ![Release](https://img.shields.io/github/v/release/xulimeng3306/go-switch)
 
 <div style="text-align: center;">
-[Chinese](README.md)
+    <a href="README.md">Chinese</a>
 </div>
+
 
 ## Table of Contents
 
