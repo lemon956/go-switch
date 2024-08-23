@@ -3,9 +3,9 @@ markdown
 
 ![Release](https://img.shields.io/github/v/release/xulimeng3306/go-switch)
 
-<div style="text-align: center;">
-    <a href="README_EN.md">英文</a>
-</div>
+<p align="center">
+  <a href="README_EN.md">英文</a>
+</p>
 
 ## 目录
 

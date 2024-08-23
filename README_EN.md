@@ -2,10 +2,9 @@
 
 ![Release](https://img.shields.io/github/v/release/xulimeng3306/go-switch)
 
-<div style="text-align: center;">
+<p align="center">
     <a href="README.md">Chinese</a>
-</div>
-
+</p>
 
 ## Table of Contents
 
