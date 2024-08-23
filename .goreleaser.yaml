@@ -24,7 +24,7 @@ builds:
       - darwin
     goarch:
       - amd64
-      - x86_64
+      - arm64
 
 archives:
   - format: tar.gz

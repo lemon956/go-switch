@@ -4,6 +4,7 @@ name: goreleaser
 on:
   pull_request:
   push:
+    # run only against tags
     tags:
       - "*"
 
@@ -23,19 +24,18 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version: 1.23.0
-          cache: true
+          go-version: stable
       # More assembly might be required: Docker logins, GPG, etc.
       # It all depends on your needs.
-      - name: Install GoReleaser Action
-        uses: goreleaser/goreleaser-action@v6
-        with:
-          version: latest
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v6
         with:
           # either 'goreleaser' (default) or 'goreleaser-pro'
           distribution: goreleaser
-          version: latest
           # 'latest', 'nightly', or a semver
-          args: release --clean --rm-dist
+          version: "~> v2"
+          args: release --clean
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Your GoReleaser Pro key, if you are using the 'goreleaser-pro' distribution
+          # GORELEASER_KEY: ${{ secrets.GORELEASER_KEY }}
