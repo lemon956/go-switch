@@ -5,7 +5,6 @@
 package features
 
 import (
-	"bufio"
 	"fmt"
 	"os"
 	"os/exec"
@@ -28,9 +27,6 @@ func (sw *UnixSwitcher) UpdateGoEnv(goRoot string) {
 	pathCmd := "export PATH=$GOROOT/bin:$PATH"
 	goEnvFilePath := fmt.Sprintf("%s%s%s", config.GoEnvFilePath, string(os.PathSeparator), "system")
 	if config.GoEnvFilePath != "" {
-		if err := config.TruncateFile(goEnvFilePath); err != nil {
-			panic(err)
-		}
 		addEnvironmentVariable(goEnvFilePath, goRootCmd)
 		addEnvironmentVariable(goEnvFilePath, pathCmd)
 	}
@@ -66,30 +62,65 @@ func (sw *UnixSwitcher) UpdateGoEnv(goRoot string) {
 
 // addEnvironmentVariable 添加环境变量
 func addEnvironmentVariable(configFile, line string) {
-	file, err := os.OpenFile(configFile, os.O_RDWR|os.O_CREATE, 0644)
+	// 读取文件内容
+	content, err := os.ReadFile(configFile)
 	if err != nil {
-		fmt.Printf("Failed to open %s: %v\n", configFile, err)
+		// 如果文件不存在，创建文件并写入
+		if os.IsNotExist(err) {
+			if err := os.WriteFile(configFile, []byte(line+"\n"), 0644); err != nil {
+				fmt.Printf("Failed to create file %s: %v\n", configFile, err)
+			} else {
+				fmt.Printf("Created file and added '%s' to %s\n", line, configFile)
+			}
+			return
+		}
+		fmt.Printf("Failed to read %s: %v\n", configFile, err)
 		return
 	}
-	defer file.Close()
 
-	scanner := bufio.NewScanner(file)
-	found := false
-	for scanner.Scan() {
-		if strings.TrimSpace(scanner.Text()) == line {
-			found = true
-			break
+	lines := strings.Split(string(content), "\n")
+	var newLines []string
+	lineAdded := false
+
+	// 判断是GOROOT、PATH还是GOPATH
+	isGoRoot := strings.HasPrefix(line, "export GOROOT=")
+	isPath := strings.HasPrefix(line, "export PATH=")
+
+	for _, existingLine := range lines {
+		existingLine = strings.TrimSpace(existingLine)
+
+		if isGoRoot && strings.HasPrefix(existingLine, "export GOROOT=") {
+			// GOROOT：覆盖写入
+			newLines = append(newLines, line)
+			lineAdded = true
+			fmt.Printf("Replaced GOROOT in %s with '%s'\n", configFile, line)
+		} else if isPath && strings.HasPrefix(existingLine, "export PATH=") {
+			// PATH：如果整行相同则保留，如果不同则替换
+			if existingLine == line {
+				newLines = append(newLines, existingLine)
+				lineAdded = true
+				fmt.Printf("PATH already exists in %s: '%s'\n", configFile, line)
+			} else {
+				newLines = append(newLines, line)
+				lineAdded = true
+				fmt.Printf("Replaced PATH in %s with '%s'\n", configFile, line)
+			}
+		} else if existingLine != "" {
+			// 保留其他行
+			newLines = append(newLines, existingLine)
 		}
 	}
 
-	if !found {
-		if _, err := file.WriteString(line + "\n"); err != nil {
-			fmt.Printf("Failed to write to %s: %v\n", configFile, err)
-		} else {
-			fmt.Printf("Added '%s' to %s\n", line, configFile)
-		}
-	} else {
-		fmt.Printf("Line '%s' already exists in %s\n", line, configFile)
+	// 如果没有找到对应的行，则添加新行
+	if !lineAdded {
+		newLines = append(newLines, line)
+		fmt.Printf("Added '%s' to %s\n", line, configFile)
+	}
+
+	// 写回文件
+	newContent := strings.Join(newLines, "\n") + "\n"
+	if err := os.WriteFile(configFile, []byte(newContent), 0644); err != nil {
+		fmt.Printf("Failed to write to %s: %v\n", configFile, err)
 	}
 }
 

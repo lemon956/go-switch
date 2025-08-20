@@ -21,6 +21,8 @@ var (
 	SaveGoDir = "gos"
 	// golang 压缩包解压之后的文件夹名称
 	UnzipGoDir = "go"
+	// GOPATH 工作目录名称
+	GoPathDir = "go"
 
 	// 不同系统默认的 go 安装路径
 	LinuxGoPath   = os.Getenv("HOME")
@@ -33,4 +35,5 @@ var (
 	GosPath       string
 	TempUnzipPath string
 	GoEnvFilePath string
+	GoPathDirPath string
 )
