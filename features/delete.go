@@ -2,6 +2,7 @@ package features
 
 import (
 	"fmt"
+	"os"
 	"path/filepath"
 
 	"github.com/manifoldco/promptui"
@@ -44,10 +45,30 @@ func Delete() {
 		return
 	}
 
-	// 清理环境变量
-	goRootPath := filepath.Join(config.GosPath, result)
-	GlobalSwitcher.UpdateGoEnv(goRootPath)
-	config.Conf.GoRoot = goRootPath
+	// 删除文件系统中的Go版本目录
+	versionPath := filepath.Join(config.GosPath, result)
+	if err := os.RemoveAll(versionPath); err != nil {
+		fmt.Printf("删除目录失败: %v\n", err)
+		return
+	}
+
+	// 检查当前删除的版本是否是正在使用的版本
+	currentLinkPath := filepath.Join(config.RootPath, "current")
+	if currentTarget, err := os.Readlink(currentLinkPath); err == nil {
+		if currentTarget == versionPath {
+			// 如果删除的是当前使用的版本，移除软链接
+			if err := os.Remove(currentLinkPath); err != nil {
+				fmt.Printf("警告：无法移除当前正在使用的Go版本: %v\n", err)
+			} else {
+				fmt.Println("已移除当前正在使用的Go版本，请切换到其他版本")
+			}
+			config.Conf.GoRoot = ""
+		}
+	}
+
+	// 从配置中移除该版本
 	config.Conf.LocalGos = append(config.Conf.LocalGos[:delIdx], config.Conf.LocalGos[delIdx+1:]...)
 	config.Conf.SaveConfig()
+
+	fmt.Printf("成功删除 Go %s\n", result)
 }

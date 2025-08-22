@@ -7,6 +7,7 @@ import (
 	"os"
 
 	"github.com/xulimeng/go-switch/config"
+	"github.com/xulimeng/go-switch/helper"
 	"github.com/xulimeng/go-switch/models"
 )
 
@@ -40,17 +41,17 @@ func Install(searchVer string, system string, arch string, savePath string, unzi
 					fmt.Printf("Sha256: %s\n", file.Sha256)
 					fmt.Println("Download URL: https://golang.org/dl/" + file.Filename)
 					filePathName := savePath + string(os.PathSeparator) + file.Filename
-					if exists, _ := config.FileExists(filePathName); !exists {
-						err := config.DownloadFile(models.GoBaseURL+file.Filename, filePathName)
+					if exists, _ := helper.FileExists(filePathName); !exists {
+						err := helper.DownloadFile(models.GoBaseURL+file.Filename, filePathName)
 						if err != nil {
 							panic(fmt.Sprintf("Download %s failed: %v", file.Filename, err))
 						}
 					}
-					err = config.Decompress(filePathName, savePath)
+					err = helper.Decompress(filePathName, savePath)
 					if err != nil {
 						panic(fmt.Sprintf("UnTarGz %s failed: %v", file.Filename, err))
 					}
-					err = config.RenameDir(unzipGoPath, version.Version)
+					err = helper.RenameDir(unzipGoPath, version.Version)
 					if err != nil {
 						panic(fmt.Sprintf("RenameDir %s failed: %v", file.Filename, err))
 					}
@@ -63,7 +64,7 @@ func Install(searchVer string, system string, arch string, savePath string, unzi
 						afterRenamePath = config.GosPath + "\\" + version.Version
 					}
 
-					if err := config.GlobalSetPermissions.SetPermissions(afterRenamePath); err != nil {
+					if err := helper.GlobalSetPermissions.SetPermissions(afterRenamePath); err != nil {
 						panic(fmt.Sprintf("SetPermissions %s failed: %v", file.Filename, err))
 					}
 
@@ -72,6 +73,11 @@ func Install(searchVer string, system string, arch string, savePath string, unzi
 						Path:    afterRenamePath,
 					})
 					config.Conf.SaveConfig()
+
+					fmt.Printf("Go %s 安装完成！\n", version.Version)
+					fmt.Println("使用 'goswitch switch' 来切换到此版本")
+					fmt.Println("使用 'goswitch env' 来查看环境信息")
+					return
 				}
 			}
 		}

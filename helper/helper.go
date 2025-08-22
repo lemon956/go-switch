@@ -1,4 +1,4 @@
-package config
+package helper
 
 import (
 	"archive/tar"
@@ -279,4 +279,27 @@ func TruncateFile(filePath string) error {
 		return err
 	}
 	return nil
+}
+
+// JudgeZshOrBash 判断当前 shell 类型
+func JudgeZshOrBash() string {
+	// 获取 SHELL 环境变量
+	shell := os.Getenv("SHELL")
+	if shell == "" {
+		fmt.Println("SHELL environment variable is not set")
+		return ""
+	}
+
+	currentShell := ""
+	shellSplit := strings.Split(shell, "/")
+	if len(shellSplit) > 0 {
+		currentShell = shellSplit[len(shellSplit)-1]
+	}
+	// 根据 shell 类型执行不同操作
+	if strings.Contains(currentShell, "zsh") {
+		return "zsh"
+	} else if strings.Contains(currentShell, "bash") {
+		return "bash"
+	}
+	return ""
 }

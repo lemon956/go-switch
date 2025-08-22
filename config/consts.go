@@ -36,4 +36,5 @@ var (
 	TempUnzipPath string
 	GoEnvFilePath string
 	GoPathDirPath string
+	CurrentPath   string
 )

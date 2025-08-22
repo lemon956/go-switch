@@ -1,19 +1,15 @@
 package features
 
 import (
+	"fmt"
 	"path/filepath"
 
 	"github.com/manifoldco/promptui"
 	"github.com/xulimeng/go-switch/config"
+	"github.com/xulimeng/go-switch/helper"
 )
 
 const Exit = "exit"
-
-var GlobalSwitcher Switcher
-
-type Switcher interface {
-	UpdateGoEnv(goRoot string)
-}
 
 func Switch() {
 	versions := []string{}
@@ -22,6 +18,11 @@ func Switch() {
 	}
 	for _, vInfo := range config.Conf.LocalGos {
 		versions = append(versions, vInfo.Version)
+	}
+
+	if len(versions) == 0 {
+		fmt.Println("没有找到已安装的Go版本，请先使用 'goswitch install' 安装Go版本")
+		return
 	}
 
 	versions = append(versions, Exit)
@@ -38,9 +39,15 @@ func Switch() {
 		return
 	}
 
-	goRootPath := filepath.Join(config.GosPath, result)
+	// 使用新的软链接方式切换
+	if err := helper.GlobalSwitcher.SwitchBySymlink(result); err != nil {
+		fmt.Printf("切换失败: %v\n", err)
+		return
+	}
 
-	GlobalSwitcher.UpdateGoEnv(goRootPath)
-	config.Conf.GoRoot = goRootPath
+	// 更新配置文件中的当前Go版本
+	config.Conf.GoRoot = filepath.Join(config.RootPath, "current")
 	config.Conf.SaveConfig()
+
+	fmt.Printf("已成功切换到 Go %s\n", result)
 }

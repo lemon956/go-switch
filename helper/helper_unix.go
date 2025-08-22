@@ -2,7 +2,7 @@
 // +build linux darwin
 
 // helper_unix.go 文件中定义了 SetPermissionsUnix 函数，用于设置文件或目录的权限和所有权。
-package config
+package helper
 
 import (
 	"log"

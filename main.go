@@ -6,6 +6,7 @@ import (
 
 	"github.com/xulimeng/go-switch/config"
 	"github.com/xulimeng/go-switch/features"
+	"github.com/xulimeng/go-switch/helper"
 )
 
 func PrintHelp() {
@@ -16,6 +17,7 @@ func PrintHelp() {
 	fmt.Println(`
 Command:
 	help	- Show this help message
+	init	- Initialize goswitch environment
 	install	- Install to go version
 	switch	- Choose go version
 	list	- List all installed go versions
@@ -25,10 +27,15 @@ Command:
 	`)
 }
 
-func init() {
-	config.InitSystemVars()
-	config.InitConfigFile()
-	config.LoadConfig()
+// ensureInitialized 确保系统已初始化（除了init命令外的其他命令需要）
+func ensureInitialized() {
+	features.InitSystemVars()
+	// 检查是否已初始化
+	if config.RootPath == "" {
+		fmt.Println("错误：go-switch 尚未初始化，请先运行 'goswitch init'")
+		os.Exit(1)
+	}
+	features.LoadConfig()
 }
 
 func main() {
@@ -41,24 +48,34 @@ func main() {
 	switch cmd {
 	case "help", "":
 		PrintHelp()
+	case "init":
+		features.InitGoSwitch()
 	case "listall":
+		ensureInitialized()
 		features.ListAll()
 	case "install":
+		ensureInitialized()
 		searchVer := ""
 		if len(args) >= 3 {
 			searchVer = args[2]
 		}
-		if exists, create := config.ExistsPath(config.GosPath); (exists || create) && searchVer != "" {
+		if exists, create := helper.ExistsPath(config.GosPath); (exists || create) && searchVer != "" {
 			features.Install(searchVer, string(config.SystemEnv), config.SystemArch, config.GosPath, config.TempUnzipPath)
 		} else {
 			panic("Please input the version you want to install")
 		}
 	case "switch":
+		ensureInitialized()
 		features.Switch()
 	case "list":
+		ensureInitialized()
 		features.List()
 	case "delete":
+		ensureInitialized()
 		features.Delete()
+	case "env":
+		ensureInitialized()
+		features.Env()
 	default:
 		fmt.Println("Command not found")
 	}

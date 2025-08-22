@@ -2,12 +2,12 @@
 //go:build !windows
 // +build !windows
 
-package features
+package helper
 
 import (
 	"fmt"
 	"os"
-	"os/exec"
+	"path/filepath"
 	"strings"
 
 	"github.com/xulimeng/go-switch/config"
@@ -48,14 +48,7 @@ func (sw *UnixSwitcher) UpdateGoEnv(goRoot string) {
 		config.Conf.Init = true
 		config.Conf.SaveConfig()
 	}
-	// if err := reloadZshCOnfig(sh, configFile); err != nil {
-	// 	fmt.Printf("Failed to reload %s config: %v\n", sh, err)
-	// 	panic(err)
-	// }
-	// if !config.Conf.Init && configFile != "" && goEnvFilePath != "" {
-	// 	config.Conf.Init = true
-	// 	config.Conf.SaveConfig()
-	// }
+
 	fmt.Println("Please execute the following command: ")
 	fmt.Println("source " + configFile)
 }
@@ -124,34 +117,31 @@ func addEnvironmentVariable(configFile, line string) {
 	}
 }
 
-func reloadZshCOnfig(shCmd string, shPath string) error {
-	cmd := exec.Command(shCmd, "-c", fmt.Sprintf("source %s", shPath))
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-	return cmd.Run()
-}
+// SwitchBySymlink 使用软链接方式切换Go版本
+func (sw *UnixSwitcher) SwitchBySymlink(goVersion string) error {
+	// 源目录：指定版本的Go安装目录
+	sourceDir := filepath.Join(config.GosPath, goVersion)
 
-// JudgeZshOrBash 判断当前 shell 类型
-func JudgeZshOrBash() string {
-	// 获取 SHELL 环境变量
-	shell := os.Getenv("SHELL")
-	if shell == "" {
-		fmt.Println("SHELL environment variable is not set")
-		return ""
+	// 目标目录：go-switch管理的当前Go目录
+	targetDir := filepath.Join(config.RootPath, "current")
+
+	// 检查源目录是否存在
+	if _, err := os.Stat(sourceDir); os.IsNotExist(err) {
+		return fmt.Errorf("Go版本 %s 不存在，请先安装", goVersion)
 	}
 
-	currentShell := ""
-	shellSplit := strings.Split(shell, "/")
-	if len(shellSplit) > 0 {
-		currentShell = shellSplit[len(shellSplit)-1]
+	// 创建软链接
+	if err := createSymlink(sourceDir, targetDir); err != nil {
+		return fmt.Errorf("切换失败: %v", err)
 	}
-	// 根据 shell 类型执行不同操作
-	if strings.Contains(currentShell, "zsh") {
-		return "zsh"
-	} else if strings.Contains(currentShell, "bash") {
-		return "bash"
-	}
-	return ""
+
+	// 提示用户确保PATH设置正确
+	ensureGoSwitchBinInPath()
+
+	fmt.Printf("成功切换到 Go %s\n", goVersion)
+	fmt.Printf("当前Go安装目录: %s\n", targetDir)
+
+	return nil
 }
 
 func UpdateGoEnvWin() {
