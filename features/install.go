@@ -41,11 +41,16 @@ func Install(searchVer string, system string, arch string, savePath string, unzi
 					fmt.Printf("Sha256: %s\n", file.Sha256)
 					fmt.Println("Download URL: https://golang.org/dl/" + file.Filename)
 					filePathName := savePath + string(os.PathSeparator) + file.Filename
-					if exists, _ := helper.FileExists(filePathName); !exists {
-						err := helper.DownloadFile(models.GoBaseURL+file.Filename, filePathName)
+					if exists, _ := helper.FileExists(filePathName); exists {
+						// 删掉已存在的文件
+						err := os.Remove(filePathName)
 						if err != nil {
-							panic(fmt.Sprintf("Download %s failed: %v", file.Filename, err))
+							panic(fmt.Sprintf("Remove %s failed: %v", file.Filename, err))
 						}
+					}
+					err := helper.DownloadFile(models.GoBaseURL+file.Filename, filePathName)
+					if err != nil {
+						panic(fmt.Sprintf("Download %s failed: %v", file.Filename, err))
 					}
 					err = helper.Decompress(filePathName, savePath)
 					if err != nil {
