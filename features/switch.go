@@ -21,7 +21,7 @@ func Switch() {
 	}
 
 	if len(versions) == 0 {
-		fmt.Println("没有找到已安装的Go版本，请先使用 'goswitch install' 安装Go版本")
+		fmt.Println("No installed Go versions found, please run 'goswitch install' first")
 		return
 	}
 
@@ -41,7 +41,7 @@ func Switch() {
 
 	// 使用新的软链接方式切换
 	if err := helper.GlobalSwitcher.SwitchBySymlink(result); err != nil {
-		fmt.Printf("切换失败: %v\n", err)
+		fmt.Printf("Switch failed: %v\n", err)
 		return
 	}
 
@@ -49,5 +49,5 @@ func Switch() {
 	config.Conf.GoRoot = filepath.Join(config.RootPath, "current")
 	config.Conf.SaveConfig()
 
-	fmt.Printf("已成功切换到 Go %s\n", result)
+	fmt.Printf("Switched to Go %s successfully\n", result)
 }

@@ -48,7 +48,7 @@ func Delete() {
 	// 删除文件系统中的Go版本目录
 	versionPath := filepath.Join(config.GosPath, result)
 	if err := os.RemoveAll(versionPath); err != nil {
-		fmt.Printf("删除目录失败: %v\n", err)
+		fmt.Printf("Failed to delete directory: %v\n", err)
 		return
 	}
 
@@ -58,9 +58,9 @@ func Delete() {
 		if currentTarget == versionPath {
 			// 如果删除的是当前使用的版本，移除软链接
 			if err := os.Remove(currentLinkPath); err != nil {
-				fmt.Printf("警告：无法移除当前正在使用的Go版本: %v\n", err)
+				fmt.Printf("Warning: failed to remove the currently active Go version: %v\n", err)
 			} else {
-				fmt.Println("已移除当前正在使用的Go版本，请切换到其他版本")
+				fmt.Println("The currently active Go version has been removed, please switch to another version")
 			}
 			config.Conf.GoRoot = ""
 		}
@@ -70,5 +70,5 @@ func Delete() {
 	config.Conf.LocalGos = append(config.Conf.LocalGos[:delIdx], config.Conf.LocalGos[delIdx+1:]...)
 	config.Conf.SaveConfig()
 
-	fmt.Printf("成功删除 Go %s\n", result)
+	fmt.Printf("Deleted Go %s successfully\n", result)
 }

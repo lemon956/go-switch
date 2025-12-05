@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"errors"
 	"runtime"
 	"strings"
 
@@ -13,15 +14,26 @@ import (
 	"github.com/xulimeng/go-switch/helper"
 )
 
-func LoadConfig() {
+// LoadConfig 加载配置文件到全局 config.Conf
+// 若配置文件不存在或内容不合法，返回 error 由调用方统一处理
+func LoadConfig() error {
 	if config.Conf == nil {
 		config.Conf = &config.Config{}
 	}
-	configFilePath := filepath.Join(config.RootPath, "config")
-	_, err := toml.DecodeFile(fmt.Sprintf("%s%s%s", configFilePath, string(os.PathSeparator), "config.toml"), config.Conf)
-	if err != nil {
-		panic(err)
+	configDir := filepath.Join(config.RootPath, "config")
+	configFile := filepath.Join(configDir, "config.toml")
+
+	if _, err := os.Stat(configFile); err != nil {
+		if os.IsNotExist(err) {
+			return fmt.Errorf("Config file does not exist: %s, please run 'goswitch init' first", configFile)
+		}
+		return fmt.Errorf("Failed to check config file: %w", err)
 	}
+
+	if _, err := toml.DecodeFile(configFile, config.Conf); err != nil {
+		return fmt.Errorf("Failed to load config file %s: %w", configFile, err)
+	}
+
 	if config.Conf.GoSwitchPath == "" && config.RootPath != "" {
 		config.Conf.GoSwitchPath = config.RootPath
 		config.Conf.SaveConfig()
@@ -33,39 +45,45 @@ func LoadConfig() {
 		initGoPathToSystem()
 		config.Conf.SaveConfig()
 	}
+	return nil
 }
 
-func InitConfigFile() {
-
+// InitConfigFile 初始化 go-switch 相关目录与基础文件，仅在 init 命令中调用
+func InitConfigFile() error {
 	if exists, create := helper.ExistsPath(config.RootPath); !exists && !create {
-		panic("RootPath not exists")
+		return fmt.Errorf("RootPath not exists: %s", config.RootPath)
 	}
 	if err := helper.GlobalSetPermissions.SetHiddenAttribute(config.RootPath); err != nil {
-		panic("RootPath SetHiddenAttribute failed " + err.Error())
+		return fmt.Errorf("RootPath SetHiddenAttribute failed: %w", err)
 	}
 
 	if exists, create := helper.ExistsPath(config.GoEnvFilePath); !exists && !create {
-		panic("GoEnvFilePath not exists")
+		return fmt.Errorf("GoEnvFilePath not exists: %s", config.GoEnvFilePath)
 	}
 
 	// 创建GOPATH目录
 	if exists, create := helper.ExistsPath(config.GoPathDirPath); !exists && !create {
-		panic("GoPathDirPath not exists")
+		return fmt.Errorf("GoPathDirPath not exists: %s", config.GoPathDirPath)
 	}
 
 	configPath := filepath.Join(config.RootPath, "config")
 	if exists, create := helper.ExistsPath(configPath); !exists && !create {
-		panic("configPath not exists")
+		return fmt.Errorf("configPath not exists: %s", configPath)
 	}
 
-	if exists, create := helper.FileExists(fmt.Sprintf("%s%s%s", configPath, string(os.PathSeparator), "config.toml")); !exists && !create {
-		panic("config file not exists")
+	if exists, create := helper.FileExists(filepath.Join(configPath, "config.toml")); !exists && !create {
+		return errors.New("config file not exists")
 	}
 
-	if exists, create := helper.FileExists(fmt.Sprintf("%s%s%s", config.GoEnvFilePath, string(os.PathSeparator), "system")); !exists && !create {
-		panic("system env file not exists")
+	if exists, create := helper.FileExists(filepath.Join(config.GoEnvFilePath, "system")); !exists && !create {
+		return errors.New("system env file not exists")
 	}
 
+	// Create fish environment file as well
+	if exists, create := helper.FileExists(filepath.Join(config.GoEnvFilePath, "system.fish")); !exists && !create {
+		return errors.New("system.fish env file not exists")
+	}
+	return nil
 }
 
 func InitSystemVars() {
@@ -91,29 +109,50 @@ func InitSystemVars() {
 	config.GoPathDirPath = filepath.Join(config.RootPath, config.GoPathDir)
 }
 
-// initGoPathToSystem 在初始化时一次性将GOPATH写入system文件
+// initGoPathToSystem writes GOPATH to the system environment files during initialization
+// It writes to both bash/zsh format (system) and fish format (system.fish)
 func initGoPathToSystem() {
 	if config.Conf.GoPath == "" {
 		return
 	}
 
-	goEnvFilePath := filepath.Join(config.GoEnvFilePath, "system")
-	goPathCmd := fmt.Sprintf("export GOPATH=%s", config.Conf.GoPath)
+	// Write GOPATH for bash/zsh (export syntax)
+	writeGoPathForShell("bash", config.Conf.GoPath)
 
-	// 检查system文件是否存在，如果不存在则创建
+	// Write GOPATH for fish (set -gx syntax)
+	writeGoPathForShell("fish", config.Conf.GoPath)
+}
+
+// writeGoPathForShell writes GOPATH to the environment file for the specified shell
+func writeGoPathForShell(shell, goPath string) {
+	var goEnvFilePath string
+	var goPathCmd string
+	var checkPrefix string
+
+	if shell == "fish" {
+		goEnvFilePath = filepath.Join(config.GoEnvFilePath, "system.fish")
+		goPathCmd = fmt.Sprintf("set -gx GOPATH %s", goPath)
+		checkPrefix = "set -gx GOPATH"
+	} else {
+		goEnvFilePath = filepath.Join(config.GoEnvFilePath, "system")
+		goPathCmd = fmt.Sprintf("export GOPATH=%s", goPath)
+		checkPrefix = "export GOPATH="
+	}
+
+	// Check if system file exists, create if not
 	if _, err := os.Stat(goEnvFilePath); os.IsNotExist(err) {
 		file, err := os.Create(goEnvFilePath)
 		if err != nil {
-			fmt.Printf("Failed to create system file: %v\n", err)
+			fmt.Printf("Failed to create %s file: %v\n", shell, err)
 			return
 		}
 		file.Close()
 	}
 
-	// 检查GOPATH是否已经存在
+	// Check if GOPATH already exists
 	file, err := os.Open(goEnvFilePath)
 	if err != nil {
-		fmt.Printf("Failed to open system file: %v\n", err)
+		fmt.Printf("Failed to open %s file: %v\n", shell, err)
 		return
 	}
 	defer file.Close()
@@ -122,33 +161,38 @@ func initGoPathToSystem() {
 	found := false
 	for scanner.Scan() {
 		line := strings.TrimSpace(scanner.Text())
-		if strings.HasPrefix(line, "export GOPATH=") {
+		if strings.HasPrefix(line, checkPrefix) {
 			found = true
 			break
 		}
 	}
 
-	// 如果没有找到GOPATH配置，则添加
+	// If GOPATH config not found, add it
 	if !found {
 		file, err := os.OpenFile(goEnvFilePath, os.O_WRONLY|os.O_APPEND, 0644)
 		if err != nil {
-			fmt.Printf("Failed to open system file for writing: %v\n", err)
+			fmt.Printf("Failed to open %s file for writing: %v\n", shell, err)
 			return
 		}
 		defer file.Close()
 
 		if _, err := file.WriteString(goPathCmd + "\n"); err != nil {
-			fmt.Printf("Failed to write GOPATH to system file: %v\n", err)
+			fmt.Printf("Failed to write GOPATH to %s file: %v\n", shell, err)
 		} else {
-			fmt.Printf("Added GOPATH configuration to system file: %s\n", goPathCmd)
+			fmt.Printf("Added GOPATH configuration to %s file: %s\n", shell, goPathCmd)
 		}
 	}
 }
 
-// initGoSwitch 初始化 go-switch 环境
-func InitGoSwitch() {
+// InitGoSwitch 初始化 go-switch 环境
+func InitGoSwitch() error {
 	InitSystemVars()
-	InitConfigFile()
-	LoadConfig()
-	fmt.Println("go-switch 环境初始化完成！")
+	if err := InitConfigFile(); err != nil {
+		return fmt.Errorf("Failed to initialize config: %w", err)
+	}
+	if err := LoadConfig(); err != nil {
+		return fmt.Errorf("Failed to load config: %w", err)
+	}
+	fmt.Println("go-switch environment initialization completed!")
+	return nil
 }

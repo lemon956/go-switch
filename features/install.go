@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/xulimeng/go-switch/config"
 	"github.com/xulimeng/go-switch/helper"
@@ -13,18 +14,28 @@ import (
 
 // Install 安装 Go 版本
 func Install(searchVer string, system string, arch string, savePath string, unzipGoPath string) {
-	// 获取 Go 版本信息
-	resp, err := http.Get(models.GoVersionsURL)
+	// Create HTTP client with timeout to avoid hanging
+	client := &http.Client{
+		Timeout: 30 * time.Second,
+	}
+
+	// Fetch Go version metadata
+	resp, err := client.Get(models.GoVersionsURL)
 	if err != nil {
-		fmt.Println("Error fetching Go versions:", err)
+		fmt.Fprintf(os.Stderr, "Error fetching Go versions from %s: %v\n", models.GoVersionsURL, err)
 		os.Exit(1)
 	}
 	defer resp.Body.Close()
 
+	if resp.StatusCode != http.StatusOK {
+		fmt.Fprintf(os.Stderr, "Error: received non-200 response code from Go versions API: %d %s\n", resp.StatusCode, resp.Status)
+		os.Exit(1)
+	}
+
 	// 解析 JSON 数据
 	var versions []models.GoVersion
 	if err := json.NewDecoder(resp.Body).Decode(&versions); err != nil {
-		fmt.Println("Connect Golang  Failed:", err)
+		fmt.Fprintf(os.Stderr, "Failed to decode Go versions JSON: %v\n", err)
 		os.Exit(1)
 	}
 
@@ -79,9 +90,9 @@ func Install(searchVer string, system string, arch string, savePath string, unzi
 					})
 					config.Conf.SaveConfig()
 
-					fmt.Printf("Go %s 安装完成！\n", version.Version)
-					fmt.Println("使用 'goswitch switch' 来切换到此版本")
-					fmt.Println("使用 'goswitch env' 来查看环境信息")
+					fmt.Printf("Go %s has been installed successfully!\n", version.Version)
+					fmt.Println("Use 'goswitch switch' to switch to this version")
+					fmt.Println("Use 'goswitch env' to inspect the environment")
 					return
 				}
 			}

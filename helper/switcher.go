@@ -21,13 +21,13 @@ func createSymlink(source, target string) error {
 	// 删除现有的软链接或文件
 	if _, err := os.Lstat(target); err == nil {
 		if err := os.Remove(target); err != nil {
-			return fmt.Errorf("无法删除现有目标: %v", err)
+			return fmt.Errorf("Failed to remove existing symlink target: %v", err)
 		}
 	}
 
 	// 创建新的软链接
 	if err := os.Symlink(source, target); err != nil {
-		return fmt.Errorf("无法创建软链接: %v", err)
+		return fmt.Errorf("Failed to create symlink: %v", err)
 	}
 
 	return nil
@@ -44,11 +44,11 @@ func ensureGoSwitchBinInPath() {
 
 	// 确保目录存在
 	if err := os.MkdirAll(filepath.Dir(goSwitchBin), 0755); err != nil {
-		fmt.Printf("无法创建目录 %s: %v\n", filepath.Dir(goSwitchBin), err)
+		fmt.Printf("Failed to create directory %s: %v\n", filepath.Dir(goSwitchBin), err)
 		return
 	}
 
-	fmt.Printf("请将以下目录添加到您的 PATH 环境变量中：\n%s\n", goSwitchBin)
-	fmt.Println("您可以将以下命令添加到您的 shell 配置文件中（如 ~/.bashrc 或 ~/.zshrc）：")
+	fmt.Printf("Please add the following directory to your PATH:\n%s\n", goSwitchBin)
+	fmt.Println("You can add this line to your shell config file (e.g. ~/.bashrc or ~/.zshrc):")
 	fmt.Printf("export PATH=\"%s:$PATH\"\n", goSwitchBin)
 }

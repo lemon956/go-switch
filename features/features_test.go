@@ -13,8 +13,12 @@ func TestMain(m *testing.M) {
 	if exists, create := helper.ExistsPath(config.RootPath); !exists && !create {
 		panic("RootPath not exists")
 	}
-	InitConfigFile()
-	LoadConfig()
+	if err := InitConfigFile(); err != nil {
+		panic(err)
+	}
+	if err := LoadConfig(); err != nil {
+		panic(err)
+	}
 
 	code := m.Run()
 	os.Exit(code)

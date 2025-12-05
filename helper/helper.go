@@ -136,7 +136,7 @@ func UntarGz(src, dest string) error {
 			}
 			outFile.Close()
 		default:
-			fmt.Printf("无法识别的文件类型: %v\n", header.Typeflag)
+			fmt.Printf("Unknown file type in tar archive: %v\n", header.Typeflag)
 		}
 	}
 
@@ -281,9 +281,10 @@ func TruncateFile(filePath string) error {
 	return nil
 }
 
-// JudgeZshOrBash 判断当前 shell 类型
-func JudgeZshOrBash() string {
-	// 获取 SHELL 环境变量
+// DetectShell detects the current shell type (bash, zsh, fish)
+// Returns: "bash", "zsh", "fish" or "" if unknown
+func DetectShell() string {
+	// Get SHELL environment variable
 	shell := os.Getenv("SHELL")
 	if shell == "" {
 		fmt.Println("SHELL environment variable is not set")
@@ -295,11 +296,19 @@ func JudgeZshOrBash() string {
 	if len(shellSplit) > 0 {
 		currentShell = shellSplit[len(shellSplit)-1]
 	}
-	// 根据 shell 类型执行不同操作
+	// Detect shell type
 	if strings.Contains(currentShell, "zsh") {
 		return "zsh"
 	} else if strings.Contains(currentShell, "bash") {
 		return "bash"
+	} else if strings.Contains(currentShell, "fish") {
+		return "fish"
 	}
 	return ""
+}
+
+// JudgeZshOrBash is deprecated, use DetectShell instead
+// Kept for backward compatibility
+func JudgeZshOrBash() string {
+	return DetectShell()
 }

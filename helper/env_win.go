@@ -74,34 +74,34 @@ func (sw *WinDowsSwitcher) SwitchBySymlink(goVersion string) error {
 
 	// 检查源目录是否存在
 	if _, err := os.Stat(sourceDir); os.IsNotExist(err) {
-		return fmt.Errorf("Go版本 %s 不存在，请先安装", goVersion)
+		return fmt.Errorf("Go version %s does not exist, please install it first", goVersion)
 	}
 
 	// 创建软链接（Windows上使用符号链接）
 	if err := createSymlink(sourceDir, targetDir); err != nil {
-		return fmt.Errorf("切换失败: %v", err)
+		return fmt.Errorf("Switch failed: %v", err)
 	}
 
 	// 在Windows上，设置GOROOT环境变量指向current目录
 	if err := setEnvVar(registry.CURRENT_USER, "GOROOT", targetDir); err != nil {
-		return fmt.Errorf("设置GOROOT失败: %v", err)
+		return fmt.Errorf("Failed to set GOROOT: %v", err)
 	}
 
 	// 更新PATH环境变量
 	binPath := filepath.Join(targetDir, "bin")
 	currentPath, err := getEnvVar(registry.CURRENT_USER, "PATH")
 	if err != nil {
-		fmt.Printf("警告：无法获取当前PATH: %v\n", err)
+		fmt.Printf("Warning: failed to get current PATH: %v\n", err)
 	} else {
 		newPath := fmt.Sprintf("%s;%s", binPath, currentPath)
 		if err := setEnvVar(registry.CURRENT_USER, "PATH", newPath); err != nil {
-			fmt.Printf("警告：无法更新PATH: %v\n", err)
+			fmt.Printf("Warning: failed to update PATH: %v\n", err)
 		}
 	}
 
-	fmt.Printf("成功切换到 Go %s\n", goVersion)
-	fmt.Printf("当前Go安装目录: %s\n", targetDir)
-	fmt.Println("请重新启动命令行窗口以使环境变量生效")
+	fmt.Printf("Switched to Go %s successfully\n", goVersion)
+	fmt.Printf("Current Go install path: %s\n", targetDir)
+	fmt.Println("Please restart your terminal window for environment changes to take effect")
 
 	return nil
 }
