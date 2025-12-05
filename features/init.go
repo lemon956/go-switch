@@ -2,10 +2,10 @@ package features
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
-	"errors"
 	"runtime"
 	"strings"
 
@@ -180,6 +180,51 @@ func writeGoPathForShell(shell, goPath string) {
 			fmt.Printf("Failed to write GOPATH to %s file: %v\n", shell, err)
 		} else {
 			fmt.Printf("Added GOPATH configuration to %s file: %s\n", shell, goPathCmd)
+		}
+	}
+
+	// Ensure PATH includes GOPATH/bin for this shell (during initialization)
+	var pathPrefix, pathCmd, goPathSegment string
+	if shell == "fish" {
+		pathPrefix = "set -gx PATH"
+		goPathSegment = "$GOPATH/bin"
+		pathCmd = "set -gx PATH $GOPATH/bin $PATH"
+	} else {
+		pathPrefix = "export PATH="
+		goPathSegment = "$GOPATH/bin"
+		pathCmd = "export PATH=$GOPATH/bin:$PATH"
+	}
+
+	// Reopen file to check for existing PATH with GOPATH/bin
+	file2, err := os.Open(goEnvFilePath)
+	if err != nil {
+		fmt.Printf("Failed to open %s file for PATH check: %v\n", shell, err)
+		return
+	}
+	defer file2.Close()
+
+	scanner2 := bufio.NewScanner(file2)
+	pathWithGoPath := false
+	for scanner2.Scan() {
+		line := strings.TrimSpace(scanner2.Text())
+		if strings.HasPrefix(line, pathPrefix) && strings.Contains(line, goPathSegment) {
+			pathWithGoPath = true
+			break
+		}
+	}
+
+	if !pathWithGoPath {
+		file2, err := os.OpenFile(goEnvFilePath, os.O_WRONLY|os.O_APPEND, 0644)
+		if err != nil {
+			fmt.Printf("Failed to open %s file for PATH writing: %v\n", shell, err)
+			return
+		}
+		defer file2.Close()
+
+		if _, err := file2.WriteString(pathCmd + "\n"); err != nil {
+			fmt.Printf("Failed to write PATH with GOPATH to %s file: %v\n", shell, err)
+		} else {
+			fmt.Printf("Added PATH with GOPATH/bin to %s file: %s\n", shell, pathCmd)
 		}
 	}
 }

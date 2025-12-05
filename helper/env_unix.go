@@ -54,8 +54,17 @@ func generateGoRootCmd(shell, goRoot string) string {
 
 // generatePathCmd generates the PATH command for the given shell
 func generatePathCmd(shell string) string {
+	// Prefer to keep GOPATH/bin first if GOPATH is configured
 	if shell == "fish" {
+		if config.Conf != nil && config.Conf.GoPath != "" {
+			// Use GOPATH and GOROOT bins
+			return "set -gx PATH $GOPATH/bin $GOROOT/bin $PATH"
+		}
 		return "set -gx PATH $GOROOT/bin $PATH"
+	}
+
+	if config.Conf != nil && config.Conf.GoPath != "" {
+		return "export PATH=$GOPATH/bin:$GOROOT/bin:$PATH"
 	}
 	return "export PATH=$GOROOT/bin:$PATH"
 }
