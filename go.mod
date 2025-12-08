@@ -1,4 +1,4 @@
-module github.com/xulimeng/go-switch
+module github.com/lemon956/go-switch
 
 go 1.22.2
 

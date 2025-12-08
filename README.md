@@ -1,7 +1,7 @@
 markdown
 # go-switch
 
-![Release](https://img.shields.io/github/v/release/xulimeng3306/go-switch)
+![Release](https://img.shields.io/github/v/release/lemon9563306/go-switch)
 
 <p align="center">
   <a href="README_EN.md">英文</a>
