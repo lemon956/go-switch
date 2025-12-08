@@ -2,7 +2,7 @@
 // +build windows
 
 // helper_windows.go
-package config
+package helper
 
 import (
 	"syscall"
