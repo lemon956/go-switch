@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 
 	"github.com/manifoldco/promptui"
-	"github.com/xulimeng/go-switch/config"
+	"github.com/lemon956/go-switch/config"
 )
 
 func Delete() {

@@ -4,8 +4,8 @@ import (
 	"os"
 	"testing"
 
-	"github.com/xulimeng/go-switch/config"
-	"github.com/xulimeng/go-switch/helper"
+	"github.com/lemon956/go-switch/config"
+	"github.com/lemon956/go-switch/helper"
 )
 
 func TestMain(m *testing.M) {

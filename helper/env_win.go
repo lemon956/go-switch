@@ -9,7 +9,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/xulimeng/go-switch/config"
+	"github.com/lemon956/go-switch/config"
 	"golang.org/x/sys/windows/registry"
 )
 

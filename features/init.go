@@ -10,8 +10,8 @@ import (
 	"strings"
 
 	"github.com/BurntSushi/toml"
-	"github.com/xulimeng/go-switch/config"
-	"github.com/xulimeng/go-switch/helper"
+	"github.com/lemon956/go-switch/config"
+	"github.com/lemon956/go-switch/helper"
 )
 
 // LoadConfig 加载配置文件到全局 config.Conf

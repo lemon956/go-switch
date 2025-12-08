@@ -10,7 +10,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/xulimeng/go-switch/config"
+	"github.com/lemon956/go-switch/config"
 )
 
 type UnixSwitcher struct{}

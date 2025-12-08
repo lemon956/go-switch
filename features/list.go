@@ -6,8 +6,8 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/xulimeng/go-switch/config"
-	"github.com/xulimeng/go-switch/models"
+	"github.com/lemon956/go-switch/config"
+	"github.com/lemon956/go-switch/models"
 )
 
 func ListAll() {

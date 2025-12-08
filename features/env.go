@@ -5,8 +5,8 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/xulimeng/go-switch/config"
-	"github.com/xulimeng/go-switch/helper"
+	"github.com/lemon956/go-switch/config"
+	"github.com/lemon956/go-switch/helper"
 )
 
 // Env displays go-switch environment information

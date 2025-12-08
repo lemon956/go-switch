@@ -7,9 +7,9 @@ import (
 	"os"
 	"time"
 
-	"github.com/xulimeng/go-switch/config"
-	"github.com/xulimeng/go-switch/helper"
-	"github.com/xulimeng/go-switch/models"
+	"github.com/lemon956/go-switch/config"
+	"github.com/lemon956/go-switch/helper"
+	"github.com/lemon956/go-switch/models"
 )
 
 // Install 安装 Go 版本
