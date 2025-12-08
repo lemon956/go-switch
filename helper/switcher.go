@@ -5,7 +5,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/lemon956/go-switch/config"
+	"github.com/xulimeng/go-switch/config"
 )
 
 var GlobalSwitcher Switcher

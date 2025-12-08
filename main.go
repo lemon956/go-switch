@@ -5,9 +5,9 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/lemon956/go-switch/config"
-	"github.com/lemon956/go-switch/features"
-	"github.com/lemon956/go-switch/helper"
+	"github.com/xulimeng/go-switch/config"
+	"github.com/xulimeng/go-switch/features"
+	"github.com/xulimeng/go-switch/helper"
 )
 
 func PrintHelp() {
