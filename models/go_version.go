@@ -1,8 +1,8 @@
 package models
 
 const (
-	GoBaseURL     = "https://golang.org/dl/"
-	GoVersionsURL = "https://golang.org/dl/?mode=json&include=all"
+	GoBaseURL     = "https://go.dev/dl/"
+	GoVersionsURL = "https://go.dev/dl/?mode=json&include=all"
 )
 
 type GoVersion struct {
