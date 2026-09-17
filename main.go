@@ -25,6 +25,7 @@ Command:
 	listall - List all available go versions
 	delete	- Delete go version
 	env 	- Show goswitch environment
+	lint	- Manage golangci-lint v1/v2
 	`)
 }
 
@@ -89,6 +90,12 @@ func main() {
 	case "env":
 		ensureInitialized()
 		features.Env()
+	case "lint":
+		ensureInitialized()
+		if err := features.Lint(args[2:]); err != nil {
+			fmt.Fprintf(os.Stderr, "%v\n", err)
+			os.Exit(1)
+		}
 	default:
 		fmt.Println("Command not found")
 	}

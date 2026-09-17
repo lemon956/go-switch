@@ -23,18 +23,26 @@ var (
 	UnzipGoDir = "go"
 	// GOPATH 工作目录名称
 	GoPathDir = "go"
+	// tools directory name
+	ToolsDir = "tools"
+	// golangci-lint installation directory name
+	GolangCILintDir = "golangci-lint"
+	// golangci-lint binary name
+	GolangCILintBinary = "golangci-lint"
 
 	// 不同系统默认的 go 安装路径
 	LinuxGoPath   = os.Getenv("HOME")
 	WindowsGoPath = os.Getenv("USERPROFILE")
 	MacGoPath     = os.Getenv("HOME")
 
-	SystemEnv     Env
-	SystemArch    string
-	RootPath      string
-	GosPath       string
-	TempUnzipPath string
-	GoEnvFilePath string
-	GoPathDirPath string
-	CurrentPath   string
+	SystemEnv         Env
+	SystemArch        string
+	RootPath          string
+	GosPath           string
+	TempUnzipPath     string
+	GoEnvFilePath     string
+	GoPathDirPath     string
+	CurrentPath       string
+	ToolsPath         string
+	GolangCILintsPath string
 )

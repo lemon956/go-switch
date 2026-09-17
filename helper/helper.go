@@ -123,7 +123,7 @@ func UntarGz(src, dest string) error {
 			}
 		case tar.TypeReg:
 			// 创建文件
-			if err := os.MkdirAll(filepath.Dir(target), os.FileMode(header.Mode)); err != nil {
+			if err := os.MkdirAll(filepath.Dir(target), 0755); err != nil {
 				return err
 			}
 			outFile, err := os.Create(target)

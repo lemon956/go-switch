@@ -107,6 +107,8 @@ func InitSystemVars() {
 	config.SystemArch = runtime.GOARCH
 	config.GoEnvFilePath = filepath.Join(config.RootPath, "environment")
 	config.GoPathDirPath = filepath.Join(config.RootPath, config.GoPathDir)
+	config.ToolsPath = filepath.Join(config.RootPath, config.ToolsDir)
+	config.GolangCILintsPath = filepath.Join(config.ToolsPath, config.GolangCILintDir)
 }
 
 // initGoPathToSystem writes GOPATH to the system environment files during initialization

@@ -15,6 +15,9 @@ type Config struct {
 	Init         bool         `toml:"init"`
 	LocalGos     []GosVersion `toml:"local_gos"`
 
+	LocalGolangCILints  []GolangCILintVersion `toml:"local_golangci_lints"`
+	CurrentGolangCILint GolangCILintCurrent   `toml:"current_golangci_lint"`
+
 	// 当前生效的 golang 环境变量
 	GoPath string `toml:"go_path"`
 	GoRoot string `toml:"go_root"`
@@ -23,6 +26,19 @@ type Config struct {
 type GosVersion struct {
 	Version string `toml:"version"`
 	Path    string `toml:"path"`
+}
+
+type GolangCILintVersion struct {
+	Major      string `toml:"major"`
+	Version    string `toml:"version"`
+	Path       string `toml:"path"`
+	BinaryPath string `toml:"binary_path"`
+}
+
+type GolangCILintCurrent struct {
+	Major      string `toml:"major"`
+	Version    string `toml:"version"`
+	BinaryPath string `toml:"binary_path"`
 }
 
 var Conf *Config

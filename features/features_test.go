@@ -24,6 +24,12 @@ func TestMain(m *testing.M) {
 	os.Exit(code)
 }
 
-func TestSwitch(t *testing.T) {
+func TestSwitchReturnsWhenNoVersionsAreInstalled(t *testing.T) {
+	previousConfig := config.Conf
+	config.Conf = &config.Config{}
+	t.Cleanup(func() {
+		config.Conf = previousConfig
+	})
+
 	Switch()
 }
